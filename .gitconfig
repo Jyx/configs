@@ -1,0 +1,51 @@
+[user]
+	name = Joakim Bech
+	email = joakim.bech@linaro.org
+[color]
+	status = auto
+	diff = auto
+	branch = auto
+[diff]
+	tool = diffuse
+[merge]
+	tool = diffuse
+[alias]
+	b = branch
+	ci = commit
+	co = checkout
+	l = log
+	lp = log -p --stat
+	ls = log --stat
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	s = status
+	r = remote
+	whois = "!sh -c 'git log -i -1 --pretty=\"format:%an <%ae>\n\" --author=\"$1\"' -"
+	whatis = show -s --pretty='tformat:%h (%s, %ad)' --date=short
+	graphviz = "!f() { echo 'digraph git {' ; git log --pretty='format:  %h -> { %p }' \"$@\" | sed 's/[0-9a-f][0-9a-f]*/\"&\"/g' ; echo '}'; }; f"
+	la = "!git config -l | grep alias | cut -c 7-"
+	g = grep --color
+	update = "!git fetch --all && git checkout upstream/master && git reset --hard upstream/master && git push origin upstream/master:master && git checkout master && git pull --ff-only"
+
+#[imap]
+#	folder = "[Gmail]/Drafts"
+#	host = imaps://imap.gmail.com
+#	user = user@gmail.com
+#	port = 993
+#	sslverify = false
+
+[sendemail]
+        smtpencryption = tls
+        smtpserver = smtp.gmail.com
+        smtpuser = joakim.bech@linaro.org
+        smtpserverport = 587
+        cc = patches@linaro.org
+        #cc = linaro-kernel@lists.linaro.org
+
+[credential]
+	helper = cache --timeout=3600
+[difftool]
+	prompt = false
+[push]
+	default = simple
+[core]
+	excludesfile = /home/jbech/.gitignore
