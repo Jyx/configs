@@ -49,3 +49,5 @@
 	default = simple
 [core]
 	excludesfile = /home/jbech/.gitignore
+[http]
+	cookiefile = /home/jbech/.gitcookies

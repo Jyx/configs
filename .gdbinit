@@ -81,7 +81,12 @@ end
 
 define optee
   target remote 127.0.0.1:1234
-  symbol-file /home/jbech/devel/optee_projects/qemu/optee_os/out/arm-plat-vexpress/core/tee.elf
+  symbol-file /home/jbech/devel/optee_projects/qemu/optee_os/out/arm/core/tee.elf
+end
+
+define optee_v8
+  target remote 127.0.0.1:1234
+  symbol-file /home/jbech/devel/optee_projects/qemu_v8/optee_os/out/arm/core/tee.elf
 end
 
 define kernel
