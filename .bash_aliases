@@ -40,6 +40,7 @@ function mgrep()
 
 # Copy files to clipboard
 alias file_to_clip="xclip -sel clip <"
+alias tb="nc termbin.com 9999"
 
 alias ll='ls -al'
 
@@ -47,3 +48,7 @@ alias nemo='nemo --no-desktop'
 
 # If we're using globash, then change PS1 slightly
 [ -n "$GHOME" ] && PS1='${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u@\h\[\033[00m\]:\[\033[01;35m\]\w\[\033[00m\]\n\$ '
+
+# Add this to .bashrc or its equivalent
+transfer() { if [ $# -eq 0 ]; then echo "No arguments specified. Usage:\necho transfer /tmp/test.md\ncat /tmp/test.md | transfer test.md"; return 1; fi
+tmpfile=$( mktemp -t transferXXX ); if tty -s; then basefile=$(basename "$1" | sed -e 's/[^a-zA-Z0-9._-]/-/g'); curl --progress-bar --upload-file "$1" "https://transfer.sh/$basefile" >> $tmpfile; else curl --progress-bar --upload-file "-" "https://transfer.sh/$1" >> $tmpfile ; fi; cat $tmpfile; rm -f $tmpfile; }
