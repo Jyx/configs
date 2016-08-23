@@ -19,6 +19,7 @@ alias review_tag="echo \"Reviewed-by: Joakim Bech <joakim.bech@linaro.org>\""
 # Repo related alias
 alias rpo_rev='repo forall -c '\''echo $REPO_PATH -- `git log --oneline -1`'\'''
 alias rpo_clean_all="repo forall -c 'echo Cleaning ... \$REPO_PATH && git clean -xdf && git checkout -f'"
+alias rpo_jbech='repo forall -c "git remote add jbech git@github.com:jbech-linaro/\$REPO_PATH.git"'
 
 alias tmux='tmux -2'
 
@@ -27,10 +28,8 @@ alias cscopeme='find `pwd` -name "*.[chsS]" > cscope.files && cscope -b -q -k'
 alias chfind='find . -name "*.[ch]"'
 
 # Overriding standard flags
-alias rgrep='rgrep --color'
+alias rgrep='grep -r --color'
 
-# Fast help
-alias dump_zip_details='echo "Client ID: 3792773" && echo "Host Passcode: 3832979710" && echo "Participant Passcode: 6054489411" && echo "Sweden 08 5065 3956"'
 
 # Functions
 function mgrep()
