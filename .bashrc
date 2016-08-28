@@ -125,7 +125,7 @@ export CCACHE_DIR=~/.ccache
 
 export JAVA_HOME=~/devel/jdk1.6
 export ANDROID_JAVA_HOME=$JAVA_HOME
-export PATH=$JAVA_HOME/bin:$PATH
+export PATH=$JAVA_HOME/bin:$PATH:$HOME/devel/nRF5x_tools/nrfjprog:$HOME/devel/nRF5x_tools/mergehex
 
 funcs()
 {
