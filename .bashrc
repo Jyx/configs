@@ -115,6 +115,7 @@ export GPGKEY=189693C7
 #export LS_COLORS
 
 # Tmux settings
+#export TERM=screen.xterm-new
 export TERM=screen-256color
 export COLORTERM=gnome-terminal
 #eval `dircolors ~/devel/dircolors-solarized/dircolors.256dark`
@@ -179,6 +180,13 @@ if [ -f "${SSH_ENV}" ]; then
 }
 else
 	start_agent;
+fi
+
+if [ -f "${HOME}/.gpg-agent-info" ]; then
+     . "${HOME}/.gpg-agent-info"
+       export GPG_AGENT_INFO
+       export SSH_AUTH_SOCK
+       export SSH_AGENT_PID
 fi
 
 # Termcap to make sure less highlight searches

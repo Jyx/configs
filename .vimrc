@@ -47,6 +47,7 @@ filetype plugin indent on
 set bg=dark
 
 colorscheme solarized
+"colorscheme default
 
 "if &term == "xterm"
 "	colorscheme default

@@ -9,6 +9,25 @@ alias mount_people='sshfs joakim.bech@people.linaro.org:/home/joakim.bech /home/
 # Tools
 alias t='$HOME/bin/todo.sh'
 
+# GPG
+# Yubikey keys
+ENC_KEY=FCDCDE19
+SIGN_KEY=3B8DDE54
+AUTH_KEY=C70DCE4D
+
+# Older keys (but more secure)
+OLD_ENC_KEY=1F6ABFB3
+OLD_SIGN_KEY=DC190DB5
+
+alias gpg='gpg2'
+
+# Function use to encrypt files locally for my own sake
+function encrypt () { gpg -e -r "$ENC_KEY!" $1; }
+function decrypt () { gpg -d --output $1.plaintext $1; }
+
+function sign () { gpg --default-key "$SIGN_KEY!" -o $1.sig --detach-sign $1; }
+function check_sign () { gpg --verify $1.sig $1; }
+
 # Git related alias
 alias gb='git branch'
 alias gs='git status'
@@ -31,10 +50,16 @@ alias chfindx='find . -name "*.[ch]" | xargs grep --color'
 alias chfinds='find . -name "*.[chsS]" | xargs grep --color'
 alias chfinda='find -iname '*.mk' -o -iname '*.ld' -o -iname '*.[chsS]'  | xargs grep --color'
 
+alias hd='hexdump -C -v'
+function hdh () { hd $1 | head $2 $3; }
+function hdt () { hd $1 | tail $2 $3; }
 
 # Overriding standard flags
 alias rgrep='grep -r --color'
 
+# Some local shortcuts
+alias go_zephyr='cd $HOME/devel/zephyr-project && source ~/bin/init_zephyr.sh && source zephyr-env.sh'
+alias go_newt='cd $HOME/devel/newt/nRF52 && source ~/bin/init_arm_32bit_toolchain && export PATH=$HOME/devel/newt/zep2newt:$PATH && export NEWT=$HOME/devel/newt/nRF52'
 
 # Functions
 function mgrep()
