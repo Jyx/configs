@@ -24,7 +24,6 @@
 	graphviz = "!f() { echo 'digraph git {' ; git log --pretty='format:  %h -> { %p }' \"$@\" | sed 's/[0-9a-f][0-9a-f]*/\"&\"/g' ; echo '}'; }; f"
 	la = "!git config -l | grep alias | cut -c 7-"
 	g = grep --color
-	update = "!git fetch --all && git checkout upstream/master && git reset --hard upstream/master && git push origin upstream/master:master && git checkout master && git pull --ff-only"
 
 #[imap]
 #	folder = "[Gmail]/Drafts"

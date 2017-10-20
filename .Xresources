@@ -55,4 +55,15 @@
 *color7:                S_base2
 *color15:               S_base3
 
-xterm*savelines: 16384
+!! xterm*savelines: 16384
+!! XTerm*faceName: Dejavu Sans Mono
+!! XTerm*faceSize: 9
+XTerm*selectToClipboard: true
+
+!!Xft.dpi: 192
+Xft.autohint: 0
+Xft.lcdfilter:  lcddefault
+Xft.hintstyle:  hintfull
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb

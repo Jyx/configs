@@ -8,18 +8,19 @@
 # i3 config file (v4)
 #
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
+# exec xrandr --dpi 192
 
 set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below. ISO 10646 = Unicode
-font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+#font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
 #font -misc-fixed-bold-r-normal-*-15-140-75-75-c-90-iso10646-1
 # The font above is very space-efficient, that is, it looks good, sharp and
 # clear in small sizes. However, if you need a lot of unicode glyphs or
 # right-to-left text rendering, you should instead use pango for rendering and
 # chose a FreeType font, such as:
-# font pango:DejaVu Sans Mono 10
+font pango:DejaVu Sans Mono 9
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -42,9 +43,9 @@ bindsym $mod+d exec dmenu_run
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # change focus
-bindsym $mod+h focus left
-bindsym $mod+j focus down
-bindsym $mod+k focus up
+bindsym $mod+j focus left
+bindsym $mod+k focus down
+bindsym $mod+i focus up
 bindsym $mod+l focus right
 
 # alternatively, you can use the cursor keys:
@@ -54,9 +55,9 @@ bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
 # move focused window
-bindsym $mod+Shift+h move left
-bindsym $mod+Shift+j move down
-bindsym $mod+Shift+k move up
+bindsym $mod+Shift+j move left
+bindsym $mod+Shift+k move down
+bindsym $mod+Shift+i move up
 bindsym $mod+Shift+l move right
 
 # alternatively, you can use the cursor keys:
@@ -66,10 +67,10 @@ bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
 # split in horizontal orientation
-bindsym $mod+Ctrl+h split h
+bindsym $mod++h split h
 
 # split in vertical orientation
-bindsym $mod+Ctrl+v split v
+bindsym $mod+v split v
 
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen
@@ -160,11 +161,16 @@ bindsym $mod+minus scratchpad show
 bindsym $mod+z [class="zathura"] scratchpad show
 
 # To handle sounds on the laptop
-#bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 -- +10% && killall -SIGUSR1 i3status
-#bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -- -10% && killall -SIGUSR1 i3status
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle
 
-#bindsym XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 10
-#bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight -inc 80
+bindsym XF86MonBrightnessDown exec --no-startup-id light -U 10
+bindsym XF86MonBrightnessUp exec --no-startup-id light -A 10
+
+bindsym XF86AudioPlay exec playerctl play
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
 
 # Should be able to enable the laptop keys also
 # exec /usr/libexec/gnome-settings-daemon
@@ -191,4 +197,37 @@ mode "$mode_system" {
 bindsym $mod+End mode "$mode_system"
 bindsym $mod+Scroll_Lock mode "$mode_system"
 
+exec --no-startup-id xsetroot -solid "#000000"
+exec --no-startup-id nm-applet
+
+# class                 border  backgr. text    indicator child_border
+client.focused          #4c7899 #285577 #ffffff #2e9ef4   #285577
+client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
+client.unfocused        #333333 #222222 #888888 #292d2e   #222222
+client.urgent           #2f343a #900000 #ffffff #900000   #900000
+client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
+
+client.background       #ffffff
+
+# Special float commands
+for_window [title="gitk"] floating enable
+for_window [title="Blue Jeans Meeting is sharing a window with bluejeans.com."] floating enable
+for_window [title="Guvcview"] floating enable
+
+for_window [class="^.*"] border pixel 2
+
+gaps inner 6
+gaps outer 3
+smart_gaps on
+#smart_borders on
+popup_during_fullscreen smart
+
 exec xrdb ~/.Xresources
+exec xmodmap ~/.xmodmap
+exec --no-startup-id ~/bin/lp
+exec --no-startup-id /opt/extras.ubuntu.com/touchpad-indicator/bin/touchpad-indicator
+exec --no-startup-id gnome-screensaver
+exec --no-startup-id feh --bg-scale ~/Pictures/hive_bg.jpg
+exec --no-startup-id pasystray
+
+# vim:filetype=i3

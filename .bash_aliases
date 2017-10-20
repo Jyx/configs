@@ -39,6 +39,7 @@ alias review_tag="echo \"Reviewed-by: Joakim Bech <joakim.bech@linaro.org>\""
 alias rpo_rev='repo forall -c '\''echo $REPO_PATH -- `git log --oneline -1`'\'''
 alias rpo_clean_all="repo forall -c 'echo Cleaning ... \$REPO_PATH && git clean -xdf && git checkout -f'"
 alias rpo_jbech='repo forall -c "git remote add jbech git@github.com:jbech-linaro/\$REPO_PATH.git"'
+alias rpo_s='repo sync -j3 -d'
 
 alias tmux='tmux -2'
 
@@ -60,6 +61,13 @@ alias rgrep='grep -r --color'
 # Some local shortcuts
 alias go_zephyr='cd $HOME/devel/zephyr-project && source ~/bin/init_zephyr.sh && source zephyr-env.sh'
 alias go_newt='cd $HOME/devel/newt/nRF52 && source ~/bin/init_arm_32bit_toolchain && export PATH=$HOME/devel/newt/zep2newt:$PATH && export NEWT=$HOME/devel/newt/nRF52'
+
+# Docker
+alias dr='docker'
+alias dr_ps='docker ps -a'
+alias dr_stopall='docker stop $(docker ps -a -q)'
+alias dr_remall='docker rm $(docker ps -a -q)'
+alias dr_stoprem='docker rm -f $(docker ps -a -q)'
 
 # Functions
 function mgrep()
@@ -111,4 +119,11 @@ if [ -f "${SSH_ENV}" ]; then
 }
 else
         start_agent;
+fi
+
+if [ -f "${HOME}/.gpg-agent-info" ]; then
+	. "${HOME}/.gpg-agent-info"
+	export GPG_AGENT_INFO
+	export SSH_AUTH_SOCK
+	export SSH_AGENT_PID
 fi
