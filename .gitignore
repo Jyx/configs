@@ -3,3 +3,7 @@ GRTAGS
 GSYMS
 GTAGS
 *.swp
+.mutt/aliases
+.mutt/cache/
+.mutt/mailcap
+.vim/.netrwhist
