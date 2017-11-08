@@ -1,6 +1,7 @@
 # Servers
 alias bonito='ssh -X jyx@jyx.mooo.com'
 alias fsdata='ssh -X jyx@jyxpi.mooo.com'
+alias optee='ssh -X optee@optee.mooo.com -p 2222'
 alias hackbox='ssh -X joakim.bech@hackbox.linaro.org'
 alias mount_hackbox='sshfs joakim.bech@hackbox.linaro.org:/home/joakim.bech /home/jbech/mnt/hackbox'
 alias people='ssh -X joakim.bech@people.linaro.org'

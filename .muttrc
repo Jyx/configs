@@ -124,7 +124,7 @@ macro index,pager gd "<change-folder>=[Gmail]/Drafts<enter>" "Go to drafts"
 macro index,pager gt "<change-folder>=[Gmail]/Sent Mail<enter>" "Go to sent mail"
 
 bind index,pager R group-reply 
-W
+
 # Deal with HTML mail
 alternative_order text/plain text/enriched text/html
 

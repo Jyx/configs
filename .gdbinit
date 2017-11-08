@@ -6,6 +6,7 @@ set output-radix 0x10
 set history save
 #focus cmd
 #layout src
+set disassembly-flavor intel
 
 define optee
   target remote 127.0.0.1:1234
