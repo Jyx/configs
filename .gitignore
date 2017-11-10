@@ -1,0 +1,13 @@
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+*.swp
+.mutt/aliases
+.mutt/cache/
+.mutt/mailcap
+.vim/.netrwhist
+.vim/bundle/vim-colors-solarized
+.vim/bundle/vim-fugitive
+.vim/bundle/vim-unimpaired
+.vim/bundle/vimwiki

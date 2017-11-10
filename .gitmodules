@@ -1,0 +1,12 @@
+[submodule "vim-fugitive"]
+	path = vim-fugitive
+	url = https://github.com/tpope/vim-fugitive.git
+[submodule "vimwiki"]
+	path = vimwiki
+	url = https://github.com/vimwiki/vimwiki.git
+[submodule "vim-unimpaired"]
+	path = vim-unimpaired
+	url = https://github.com/tpope/vim-unimpaired.git
+[submodule "vim-colors-solarized"]
+	path = vim-colors-solarized
+	url = https://github.com/altercation/vim-colors-solarized.git
