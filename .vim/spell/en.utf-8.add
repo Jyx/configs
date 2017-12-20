@@ -225,3 +225,7 @@ libmpa
 REE
 OTP
 Christoffer
+HOTP
+RFC4226
+TLS
+HMAC

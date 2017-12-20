@@ -29,7 +29,8 @@ floating_modifier $mod
 workspace_auto_back_and_forth yes
 
 # start a terminal
-bindsym $mod+Return exec xterm
+bindsym $mod+Return exec terminator
+#bindsym $mod+Return exec xterm
 # bindsym $mod+Return exec gnome-terminal
 
 # kill focused window
@@ -163,6 +164,8 @@ bindsym $mod+z [class="zathura"] scratchpad show
 # To handle sounds on the laptop
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5%
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5%
+#bindsym XF86AudioRaiseVolume exec --no-startup-id amixer -D pulse sset Master 5%+
+#bindsym XF86AudioLowerVolume exec --no-startup-id amixer -D pulse sset Master 5%-
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle
 
 bindsym XF86MonBrightnessDown exec --no-startup-id light -U 5
@@ -213,21 +216,23 @@ client.background       #ffffff
 for_window [title="gitk"] floating enable
 for_window [title="Blue Jeans Meeting is sharing a window with bluejeans.com."] floating enable
 for_window [title="Guvcview"] floating enable
+#for_window [class="gimp"] floating enable
 
 for_window [class="^.*"] border pixel 2
 
-gaps inner 6
-gaps outer 3
-smart_gaps on
+#gaps inner 6
+#gaps outer 3
+#smart_gaps on
 #smart_borders on
-popup_during_fullscreen smart
+#popup_during_fullscreen smart
 
 exec xrdb ~/.Xresources
 exec xmodmap ~/.xmodmap
 exec --no-startup-id ~/bin/lp
-exec --no-startup-id /opt/extras.ubuntu.com/touchpad-indicator/bin/touchpad-indicator
-exec --no-startup-id gnome-screensaver
+#exec --no-startup-id /opt/extras.ubuntu.com/touchpad-indicator/bin/touchpad-indicator
+#exec --no-startup-id gnome-screensaver
 exec --no-startup-id feh --bg-scale ~/Pictures/hive_bg.jpg
 exec --no-startup-id pasystray
+exec --no-startup-id xautolock -time 20 -locker "gnome-screensaver-command -l"
 
 # vim:filetype=i3

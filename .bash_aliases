@@ -2,6 +2,8 @@
 alias bonito='ssh -X jyx@jyx.mooo.com'
 alias fsdata='ssh -X jyx@jyxpi.mooo.com'
 alias optee='ssh -X optee@optee.mooo.com -p 2222'
+alias optee_local='ssh -X optee@192.168.1.61'
+alias manjaro='ssh -X jbech@192.168.1.110'
 alias hackbox='ssh -X joakim.bech@hackbox.linaro.org'
 alias mount_hackbox='sshfs joakim.bech@hackbox.linaro.org:/home/joakim.bech /home/jbech/mnt/hackbox'
 alias people='ssh -X joakim.bech@people.linaro.org'
@@ -30,7 +32,7 @@ function sign () { gpg --default-key "$SIGN_KEY!" -o $1.sig --detach-sign $1; }
 function check_sign () { gpg --verify $1.sig $1; }
 
 # Git related alias
-alias gb='git branch'
+alias gb='git b -v'
 alias gs='git status'
 alias grv='git remote -v'
 alias gh_url="git remote -v | head -1 | awk '{print $2}' | sed -e 's/https:\/\/github.com\/\(.*\)/git@github.com:\1/g'"
@@ -41,6 +43,11 @@ alias rpo_rev='repo forall -c '\''echo $REPO_PATH -- `git log --oneline -1`'\'''
 alias rpo_clean_all="repo forall -c 'echo Cleaning ... \$REPO_PATH && git clean -xdf && git checkout -f'"
 alias rpo_jbech='repo forall -c "git remote add jbech git@github.com:jbech-linaro/\$REPO_PATH.git"'
 alias rpo_s='repo sync -j3 -d'
+
+# Git submodules alias
+alias gsm='git submodule'
+alias gsm_clean_all='git submodule foreach "git clean -xdf && git checkout -f"'
+alias gsm_jbech="git submodule foreach 'git remote add jbech git@github.com:jbech-linaro/$name.git'"
 
 alias tmux='tmux -2'
 
@@ -128,3 +135,5 @@ if [ -f "${HOME}/.gpg-agent-info" ]; then
 	export SSH_AUTH_SOCK
 	export SSH_AGENT_PID
 fi
+
+alias vim='nvim'

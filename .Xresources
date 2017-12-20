@@ -7,7 +7,7 @@
 #define S_base2         #eee8d5
 #define S_base3         #fdf6e3
 
-*background:            S_base03
+*background:            S_base02
 *foreground:            S_base0
 *fadeColor:             S_base03
 *cursorColor:           S_base1
@@ -59,6 +59,7 @@
 !! XTerm*faceName: Dejavu Sans Mono
 !! XTerm*faceSize: 9
 XTerm*selectToClipboard: true
+XTerm.termName: xterm
 
 !!Xft.dpi: 192
 Xft.autohint: 0

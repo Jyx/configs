@@ -19,7 +19,8 @@ set smartcase
 set smartindent
 "set smarttab
 set sw=8
-set t_Co=256
+"set t_Co=16
+"set t_Co=256
 set ts=8
 set tw=80
 set sts=0
@@ -47,6 +48,7 @@ filetype plugin indent on
 set bg=dark
 
 colorscheme solarized
+"let g:solarized_termcolors=16
 "colorscheme default
 
 "if &term == "xterm"
@@ -70,7 +72,9 @@ au BufRead,BufNewFile *.php set ft=php.html
 
 map _gt :!ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .<CR>
 map _m :wa<CR>:make<CR>
-map <F7> <ESC>:wa<CR>:make<CR>
+"map <F7> <ESC>:wa!<cr>:!./build_hotp_ta.sh<cr>
+map <F7> <ESC>:wa!<cr>:!./build_aes_cbc_mac.sh<cr>
+"map <F7> <ESC>:wa<CR>:make<CR>
 map <F12> :cscope f s <cword><CR>
 
 map _s :source ~/.vimrc<CR>
