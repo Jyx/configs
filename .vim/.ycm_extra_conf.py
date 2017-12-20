@@ -3,7 +3,8 @@ import ycm_core
 
 def FlagsForFile( filename, **kwargs ):
     # A bit hacky, but will do the job for a single OP-TEE tree
-    dirname = "/home/jyx/devel/optee_os"
+    dirname = "/home/jbech/devel/optee_projects/qemu/optee_os"
+
     return {
             'flags': [ 
                 '-DARM32=1',
@@ -76,6 +77,7 @@ def FlagsForFile( filename, **kwargs ):
                 '-Wwrite-strings',
                 '-x', 'c',
                 '-isystem', '/lib/clang/5.0.0/include',
+                '-isystem', '/usr/lib/llvm-4.0/lib/clang/4.0.1/include',
                 '',
                 ],
                 'do_cache': True,

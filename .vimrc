@@ -56,7 +56,8 @@ nnoremap <leader>jd :YcmCompleter GoTo<CR>
 " NERDTree
 " autocmd vimenter * NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-map <C-n> :NERDTree<cr>
+nnoremap <leader>n :NERDTree<cr>
+nnoremap <leader>nt :NERDTreeToggle<cr>
 
 " ctrlp.vim
 let g:ctrlp_show_hidden = 1
