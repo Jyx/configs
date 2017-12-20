@@ -46,8 +46,12 @@ set bg=dark
 "let g:molokai_original = 1
 let g:rehash256 = 1
 
+let mapleader = "-"
+
 " YCM
 let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
+let g:ycm_autoclose_preview_window_after_insertion = 1
+nnoremap <leader>jd :YcmCompleter GoTo<CR>
 
 " NERDTree
 " autocmd vimenter * NERDTree
@@ -66,14 +70,15 @@ autocmd FileType mail set spell
 " Git
 au FileType gitcommit setlocal tw=72
 
-map _m :wa<CR>:make<CR>
+nnoremap <leader>m :wa<CR>:make<CR>
 map <F7> <ESC>:wa<CR>:make<CR>
 
-map _s :source ~/.vimrc<CR>
-map _e :e ~/.vimrc<CR>
+nnoremap <leader>s :source ~/.vimrc<CR>
+nnoremap <leader>e :e ~/.vimrc<CR>
 
 map <C-down> :bp<CR>
 map <C-up>   :bn<CR>
+
 
 let GtagsCscope_Auto_Load = 1
 let GtagsCscope_Auto_Map = 1
