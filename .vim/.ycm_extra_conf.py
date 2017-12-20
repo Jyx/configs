@@ -78,6 +78,7 @@ def FlagsForFile( filename, **kwargs ):
                 '-x', 'c',
                 '-isystem', '/lib/clang/5.0.0/include',
                 '-isystem', '/usr/lib/llvm-4.0/lib/clang/4.0.1/include',
+                '-isystem', '/usr/include',
                 '',
                 ],
                 'do_cache': True,

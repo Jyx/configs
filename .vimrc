@@ -61,6 +61,11 @@ nnoremap <leader>nt :NERDTreeToggle<cr>
 
 " ctrlp.vim
 let g:ctrlp_show_hidden = 1
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  \ 'file': '\v\.(exe|so|dll|o|ta|elf)$',
+  \ }
+" \ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
 
 " Spot extra whitespace
 au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match Error /\s\+$/
