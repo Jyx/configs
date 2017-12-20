@@ -71,6 +71,9 @@ autocmd FileType mail set spell
 " Git
 au FileType gitcommit setlocal tw=72
 
+" Freeplane
+au BufRead,BufNewFile *.mm set filetype=xml
+
 nnoremap <leader>m :wa<CR>:make<CR>
 map <F7> <ESC>:wa<CR>:make<CR>
 

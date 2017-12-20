@@ -4,9 +4,12 @@
 alias bonito='ssh -X jyx@jyx.mooo.com'
 alias fsdata='ssh -X jyx@jyxpi.mooo.com'
 alias hackbox='ssh -X joakim.bech@hackbox.linaro.org'
+alias manjaro='ssh -X jbech@192.168.1.110'
 alias mount_hackbox='sshfs joakim.bech@hackbox.linaro.org:/home/joakim.bech /home/jbech/mnt/hackbox'
-alias people='ssh -X joakim.bech@people.linaro.org'
 alias mount_people='sshfs joakim.bech@people.linaro.org:/home/joakim.bech /home/jbech/mnt/people'
+alias optee_local='ssh -X optee@192.168.1.61'
+alias optee='ssh -X optee@optee.mooo.com -p 2222'
+alias people='ssh -X joakim.bech@people.linaro.org'
 
 ################################################################################
 # Tools
@@ -38,11 +41,15 @@ function check_sign () { gpg --verify $1.sig $1; }
 ################################################################################
 # Git related alias
 ################################################################################
-alias gb='git branch'
+alias gb='git branch -v'
 alias gs='git status'
 alias grv='git remote -v'
 alias gh_url="git remote -v | head -1 | awk '{print $2}' | sed -e 's/https:\/\/github.com\/\(.*\)/git@github.com:\1/g'"
 alias review_tag="echo \"Reviewed-by: Joakim Bech <joakim.bech@linaro.org>\""
+
+alias gsm='git submodule'
+alias gsm_clean_all='git submodule foreach "git clean -xdf && git checkout -f"'
+alias gsm_jbech="git submodule foreach 'git remote add jbech git@github.com:jbech-linaro/$name.git'"
 
 ################################################################################
 # Repo related alias
