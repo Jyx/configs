@@ -1,0 +1,3 @@
+default: \
+	:skip=GPATH,GTAGS,GRTAGS,out/,.git/,build/,
+

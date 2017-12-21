@@ -219,6 +219,9 @@ for_window [title="Guvcview"] floating enable
 #for_window [class="gimp"] floating enable
 
 for_window [class="^.*"] border pixel 2
+for_window [class="Adg_driver"] floating enable
+for_window [class="adg_driver"] floating enable
+for_window [title="Affinic Debugger 2.0.1"] floating enable
 
 #gaps inner 6
 #gaps outer 3

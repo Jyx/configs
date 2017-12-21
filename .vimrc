@@ -56,7 +56,7 @@ nnoremap <leader>jd :YcmCompleter GoTo<CR>
 " NERDTree
 " autocmd vimenter * NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-nnoremap <leader>n :NERDTree<cr>
+nnoremap <leader>ns :NERDTree<cr>
 nnoremap <leader>nt :NERDTreeToggle<cr>
 
 " ctrlp.vim
@@ -89,10 +89,19 @@ map <C-down> :bp<CR>
 map <C-up>   :bn<CR>
 
 
+" Gtags etc
 let GtagsCscope_Auto_Load = 1
 let GtagsCscope_Auto_Map = 1
 let GtagsCscope_Quiet = 1
 set cscopetag
-"
-map <C-g> :cscope f g <cword>
-map <C-c> :cscope f c <cword><cr>
+
+" Update GTAGS database everytime you save the file.
+autocmd BufWritePost *.c,*.h silent exec '! if [ -f GTAGS ]; then global -u; fi'
+
+nnoremap <leader>cc :cscope f c <cword><cr>zz
+nnoremap <leader>ce :cscope f e <cword><cr>zz
+nnoremap <leader>cf :cscope f f  
+nnoremap <leader>cg :cscope f g <cword><cr>zz
+nnoremap <leader>ci :cscope f i <cword>.h<cr>zz
+nnoremap <leader>cs :cscope f s <cword><cr>zz
+
