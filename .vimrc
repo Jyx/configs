@@ -79,6 +79,9 @@ au FileType gitcommit setlocal tw=72
 " Freeplane
 au BufRead,BufNewFile *.mm set filetype=xml
 
+" Python
+nnoremap <leader>pr :w<cr>:exec '!python' shellescape(@%, 1)<cr>
+
 nnoremap <leader>m :wa<CR>:make<CR>
 map <F7> <ESC>:wa<CR>:make<CR>
 
