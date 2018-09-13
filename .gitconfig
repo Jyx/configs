@@ -50,3 +50,8 @@
 	excludesfile = /home/jbech/.gitignore
 [http]
 	cookiefile = /home/jbech/.gitcookies
+[uploadpack]
+	allowTipSHA1InWant = true
+	allowReachableSHA1InWant = true
+	allowAnySHA1InWant = true
+	hiderefs = false

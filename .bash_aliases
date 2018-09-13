@@ -1,7 +1,7 @@
 ################################################################################
 # Server alias
 ################################################################################
-alias bonito='ssh -X jyx@jyx.mooo.com'
+alias bonito2='ssh -X jyx@jyx.mooo.com'
 alias fsdata='ssh -X jyx@jyxpi.mooo.com'
 alias hackbox='ssh -X joakim.bech@hackbox.linaro.org'
 alias manjaro='ssh -X jbech@192.168.1.110'
@@ -29,7 +29,7 @@ OLD_ENC_KEY=1F6ABFB3
 OLD_SIGN_KEY=DC190DB5
 export GPGKEY=189693C7
 
-alias gpg='gpg2'
+#alias gpg='gpg2'
 
 # Function use to encrypt files locally for my own sake
 function encrypt () { gpg -e -r "$ENC_KEY!" $1; }
@@ -60,6 +60,7 @@ alias rpo_jbech='repo forall -c "git remote add jbech git@github.com:jbech-linar
 alias rpo_s='repo sync -j3 -d'
 
 alias tmux='tmux -2'
+alias byobunew='byobu new -s'
 
 ################################################################################
 # Cscope specific
@@ -74,6 +75,13 @@ function hdh () { hd $1 | head $2 $3; }
 function hdt () { hd $1 | tail $2 $3; }
 
 ################################################################################
+# Android / AOSP
+################################################################################
+alias adb_tee="adb logcat TrustyKeymaster:V GoldfishGatekeeper:V *:S -v long,color -d"
+alias emulator_tee="emulator -no-window -no-boot-anim -no-audio -ranchu"
+alias adb_unlock_screen="adb shell input keyevent 82 && adb shell input text 1234 && adb shell input keyevent 66"
+
+################################################################################
 # Docker
 ################################################################################
 alias dr='docker'
@@ -86,8 +94,12 @@ alias dr_stoprem='docker rm -f $(docker ps -a -q)'
 # ccache
 ################################################################################
 export USE_CCACHE=1
-export CCACHE_DIR=~/.ccache
+export CCACHE_DIR=/media/jbech/SSHD_LINUX/.ccache
 
+################################################################################
+# QEMU Arm on x86
+################################################################################
+alias qemu_arm='qemu-arm -E LD_LIBRARY_PATH=/media/jbech/SSHD_LINUX/devel/optee_projects/reference/toolchains/aarch32/arm-linux-gnueabihf/libc/lib/ /media/jbech/SSHD_LINUX/devel/optee_projects/reference/toolchains/aarch32/arm-linux-gnueabihf/libc/lib/ld-linux-armhf.so.3'
 
 ################################################################################
 # Various search and find
@@ -105,7 +117,7 @@ function mgrep()
 }
 
 ff() {
-	echo "$1 : $2"
+	#echo "$1 : $2"
 	if [ $# -eq 1 ]; then
 		find . | grep --color -e "\.$1\$"
 	else

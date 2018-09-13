@@ -20,9 +20,10 @@ set ruler
 set showmatch
 set smartcase
 set smartindent
-set smartindent
 set sw=8
 set ts=8
+set noshowmatch
+let g:loaded_matchparen = 1
 
 " For swp-files
 set dir=~/tmp//
@@ -37,7 +38,7 @@ call vundle#begin()
 Plugin 'vim-airline/vim-airline'
 Plugin 'kien/ctrlp.vim'
 Plugin 'scrooloose/nerdtree'
-Plugin 'Valloric/YouCompleteMe'
+"Plugin 'Valloric/YouCompleteMe'
 call vundle#end()            " required
 filetype plugin indent on    " required
 
@@ -49,9 +50,9 @@ let g:rehash256 = 1
 let mapleader = "-"
 
 " YCM
-let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
-let g:ycm_autoclose_preview_window_after_insertion = 1
-nnoremap <leader>jd :YcmCompleter GoTo<CR>
+"let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
+"let g:ycm_autoclose_preview_window_after_insertion = 1
+"nnoremap <leader>jd :YcmCompleter GoTo<CR>
 
 " NERDTree
 " autocmd vimenter * NERDTree
@@ -65,6 +66,7 @@ let g:ctrlp_custom_ignore = {
   \ 'dir':  '\v[\/]\.(git|hg|svn)$',
   \ 'file': '\v\.(exe|so|dll|o|ta|elf)$',
   \ }
+let g:ctrlp_by_filename = 1
 " \ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
 
 " Spot extra whitespace

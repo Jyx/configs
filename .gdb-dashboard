@@ -34,7 +34,7 @@ The list of all the available styles can be obtained with (from GDB itself):
     python from pygments.styles import get_all_styles as styles
     python for s in styles(): print(s)
 """,
-                'default': 'vim',
+                'default': 'monokai',
                 'type': str
             },
             # prompt
@@ -188,6 +188,8 @@ def to_string(value):
 def format_address(address):
     pointer_size = gdb.parse_and_eval('$pc').type.sizeof
     return ('0x{{:0{}x}}').format(pointer_size * 2).format(address)
+
+
 
 class Beautifier():
     def __init__(self, filename, tab_size=4):
@@ -891,13 +893,13 @@ class Source(Dashboard.Module):
         return {
             'context': {
                 'doc': 'Number of context lines.',
-                'default': 5,
+                'default': 10,
                 'type': int,
                 'check': check_ge_zero
             },
             'tab-size': {
                 'doc': 'Number of spaces used to display the tab character.',
-                'default': 4,
+                'default': 8,
                 'name': 'tab_size',
                 'type': int,
                 'check': check_gt_zero
@@ -1174,7 +1176,7 @@ location, if available. Optionally list the frame arguments and locals too."""
         return {
             'limit': {
                 'doc': 'Maximum number of displayed frames (0 means no limit).',
-                'default': 2,
+                'default': 4,
                 'type': int,
                 'check': check_ge_zero
             },
