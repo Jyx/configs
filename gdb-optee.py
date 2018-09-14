@@ -1,5 +1,6 @@
 import gdb
 import os
+from curses.ascii import isgraph
 
 # All paths here have been verified and used with OP-TEE v3.2.0
 
@@ -272,3 +273,37 @@ class LoadUBoot(gdb.Command):
         gdb.execute("b _main")
 
 LoadUBoot()
+
+class OPTEECmd(gdb.Command):
+    def __init__(self):
+        super(OPTEECmd, self).__init__("optee", gdb.COMMAND_USER)
+
+    def invoke(self, arg, from_tty):
+        if arg == "memlayout":
+            CFG_SHMEM_START = gdb.parse_and_eval("CFG_SHMEM_START")
+            CFG_SHMEM_SIZE = gdb.parse_and_eval("CFG_SHMEM_SIZE")
+            print("SHMEM:  0x{:08x} - 0x{:08x}   size: 0x{:08x} [{:d}]".format(
+                int(str(CFG_SHMEM_START), 16),
+                int(str(CFG_SHMEM_START + CFG_SHMEM_SIZE), 16),
+                int(str(CFG_SHMEM_SIZE), 16),
+                int(CFG_SHMEM_SIZE)))
+
+            CFG_TZDRAM_START = gdb.parse_and_eval("CFG_TZDRAM_START")
+            CFG_TZDRAM_SIZE = gdb.parse_and_eval("CFG_TZDRAM_SIZE")
+            print("TZDRAM: 0x{:08x} - 0x{:08x}   size: 0x{:08x} [{:d}]".format(
+                int(str(CFG_TZDRAM_START), 16),
+                int(str(CFG_TZDRAM_START + CFG_TZDRAM_SIZE), 16),
+                int(str(CFG_TZDRAM_SIZE), 16),
+                int(CFG_TZDRAM_SIZE)))
+
+            CFG_TEE_RAM_VA_SIZE = gdb.parse_and_eval("CFG_TEE_RAM_VA_SIZE")
+            print("TEE_RAM_VA_SIZE: {} [{:d}]".format(
+                CFG_TEE_RAM_VA_SIZE,
+                int(CFG_TEE_RAM_VA_SIZE)))
+
+    def complete(self, text, word):
+        # Sync the array with invoke
+        candidates = ['memlayout']
+        return filter(lambda candidate: candidate.startswith(word), candidates)
+
+OPTEECmd()
