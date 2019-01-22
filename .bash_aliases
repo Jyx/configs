@@ -19,19 +19,17 @@ alias t='$HOME/bin/todo.sh'
 ################################################################################
 # GPG
 ################################################################################
-# Yubikey keys
-ENC_KEY=FCDCDE19
-SIGN_KEY=3B8DDE54
-AUTH_KEY=C70DCE4D
+# RSA keys update 2018-12-05
+ENC_KEY=7AC319FD
+SIGN_KEY=3CEB3C94
+AUTH_KEY=0EC497DA
 
-# Older keys (but more secure)
-OLD_ENC_KEY=1F6ABFB3
-OLD_SIGN_KEY=DC190DB5
 export GPGKEY=189693C7
 
-#alias gpg='gpg2'
+alias gpg='gpg2'
 
-# Function use to encrypt files locally for my own sake
+# Function use to encrypt files locally for my own sake.
+# Note to use this the private keys must reside in the keyring!
 function encrypt () { gpg -e -r "$ENC_KEY!" $1; }
 function decrypt () { gpg -d --output $1.plaintext $1; }
 
@@ -139,6 +137,7 @@ tmpfile=$( mktemp -t transferXXX ); if tty -s; then basefile=$(basename "$1" | s
 # i3 tweaks
 ################################################################################
 alias nemo='nemo --no-desktop'
+alias gnome_settings='env XDG_CURRENT_DESKTOP=GNOME gnome-control-center'
 
 ################################################################################
 # SSH settings
