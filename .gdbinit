@@ -20,6 +20,9 @@ define db
   dashboard
 end
 
+source /home/jbech/configs/gdb-optee.py
+source /home/jbech/configs/hexdump.py
+
 ################################################################################
 # Misc
 ################################################################################
