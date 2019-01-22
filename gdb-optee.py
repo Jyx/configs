@@ -45,6 +45,7 @@ XTEST_HOST_ELF           = "out-br/build/optee_test-1.0/host/xtest/xtest"
 # TF-A binaries
 BL1_ELF                  = "arm-trusted-firmware/build/qemu/debug/bl1/bl1.elf"
 BL2_ELF                  = "arm-trusted-firmware/build/qemu/debug/bl2/bl2.elf"
+BL31_ELF                 = "arm-trusted-firmware/build/qemu/debug/bl31/bl31.elf"
 
 # Linux kernel
 LINUX_KERNEL_ELF         = "linux/vmlinux"
@@ -52,15 +53,23 @@ LINUX_KERNEL_ELF         = "linux/vmlinux"
 # U-Boot
 UBOOT_ELF                = "u-boot/u-boot"
 
+# This has been pretty much the same on QEMU v7 for a long time, but it happens
+# that it needs to be changed
+TA_LOAD_ADDR="0x10d020"
+
 # Main path to a OP-TEE project which can be overridden by exporting
 # OPTEE_PROJ_PATH to another valid setup coming from build.git
 # (https://github.com/OP-TEE/build)
 OPTEE_PROJ_PATH = "/media/jbech/SSHD_LINUX/devel/optee_projects/qemu"
 if 'OPTEE_PROJ_PATH' in os.environ:
     OPTEE_PROJ_PATH = os.environ['OPTEE_PROJ_PATH']
+    # QEMU v7 is the default, but if OPTEE_PROJ_PATH it's probably QEMU v8 and
+    # therefore we take a chance to set the load address for QEMU v8 in case
+    # the OPTEE_PROJ_PATH has been changed.
+    TA_LOAD_ADDR="0x4000d020"
 
-# This is pretty much the same for a long time, but it happens that it needs to be changed
-TA_LOAD_ADDR="0x103020"
+# The TA_LOAD_ADDR exported as environment variable always has the final
+# saying.
 if 'TA_LOAD_ADDR' in os.environ:
     TA_LOAD_ADDR = os.environ['TA_LOAD_ADDR']
 
@@ -228,6 +237,8 @@ class LoadTFA(gdb.Command):
                 binary = BL1_ELF
             elif arg == "bl2":
                 binary = BL2_ELF
+            elif arg == "bl31":
+                binary = BL31_ELF
             else:
                 print("Unknown/unspecified TF-A binary!")
                 return
@@ -239,13 +250,19 @@ class LoadTFA(gdb.Command):
             elif binary == BL2_ELF:
                 gdb.execute("b bl2_entrypoint")
                 gdb.execute("b bl2_main")
+            elif binary == BL31_ELF:
+                gdb.execute("b bl31_entrypoint")
+                gdb.execute("b bl31_main")
+                gdb.execute("b opteed_setup")
+                gdb.execute("b opteed_init")
+                gdb.execute("b opteed_smc_handler")
 
         except IndexError:
             print("No TF-A binary specified")
 
     def complete(self, text, word):
         # Sync the array with invoke
-        candidates = ['bl1', 'bl2']
+        candidates = ['bl1', 'bl2', 'bl31']
         return filter(lambda candidate: candidate.startswith(word), candidates)
 
 LoadTFA()
@@ -276,7 +293,7 @@ LoadUBoot()
 
 class OPTEECmd(gdb.Command):
     def __init__(self):
-        super(OPTEECmd, self).__init__("optee", gdb.COMMAND_USER)
+        super(OPTEECmd, self).__init__("optee-stat", gdb.COMMAND_USER)
 
     def invoke(self, arg, from_tty):
         if arg == "memlayout":
