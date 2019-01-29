@@ -108,7 +108,7 @@ which `{pid}` is expanded with the process identifier of the target program.""",
             },
             # common styles
             'style_selected_1': {
-                'default': '1;32'
+                'default': '1;31'
             },
             'style_selected_2': {
                 'default': '32'
@@ -117,13 +117,13 @@ which `{pid}` is expanded with the process identifier of the target program.""",
                 'default': '33'
             },
             'style_low': {
-                'default': '1;30'
+                'default': '3;34'
             },
             'style_high': {
-                'default': '1;37'
+                'default': '37'
             },
             'style_error': {
-                'default': '31'
+                'default': '3:31'
             }
         }
 
