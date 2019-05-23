@@ -49,6 +49,13 @@ alias gsm='git submodule'
 alias gsm_clean_all='git submodule foreach "git clean -xdf && git checkout -f"'
 alias gsm_jbech="git submodule foreach 'git remote add jbech git@github.com:jbech-linaro/$name.git'"
 
+# To checkout a GitHub pull request directly
+function gpr_origin_as_branch () { git fetch origin pull/$1/head:github_pr_$1 && git checkout github_pr_$1; }
+function gpr_origin { git fetch origin pull/$1/head && git checkout FETCH_HEAD; }
+
+function gpr_github_as_branch () { git fetch github pull/$1/head:github_pr_$1 && git checkout github_pr_$1; }
+function gpr_github { git fetch github pull/$1/head && git checkout FETCH_HEAD; }
+
 ################################################################################
 # Repo related alias
 ################################################################################
@@ -56,6 +63,7 @@ alias rpo_rev='repo forall -c '\''echo $REPO_PATH -- `git log --oneline -1`'\'''
 alias rpo_clean_all="repo forall -c 'echo Cleaning ... \$REPO_PATH && git clean -xdf && git checkout -f'"
 alias rpo_jbech='repo forall -c "git remote add jbech git@github.com:jbech-linaro/\$REPO_PATH.git"'
 alias rpo_s='repo sync -j3 -d'
+alias rpo_gcc='./toolchains/aarch32/bin/arm-linux-gnueabihf-gcc --version | grep "GNU Toolchain" && ./toolchains/aarch64/bin/aarch64-linux-gnu-gdb --version | grep "GNU Toolchain"'
 
 alias tmux='tmux -2'
 alias byobunew='byobu new -s'
@@ -73,11 +81,58 @@ function hdh () { hd $1 | head $2 $3; }
 function hdt () { hd $1 | tail $2 $3; }
 
 ################################################################################
+# OP-TEE
+################################################################################
+export LAUNCH_TERMINAL="terminator -x"
+
+################################################################################
 # Android / AOSP
 ################################################################################
 alias adb_tee="adb logcat TrustyKeymaster:V GoldfishGatekeeper:V *:S -v long,color -d"
 alias emulator_tee="emulator -no-window -no-boot-anim -no-audio -ranchu"
 alias adb_unlock_screen="adb shell input keyevent 82 && adb shell input text 1234 && adb shell input keyevent 66"
+
+# Comes from make/envsetup.sh in AOSP
+function gettop
+{
+    local TOPFILE=GTAGS
+    if [ -n "$TOP" -a -f "$TOP/$TOPFILE" ] ; then
+        # The following circumlocution ensures we remove symlinks from TOP.
+        (cd $TOP; PWD= /bin/pwd)
+    else
+        if [ -f $TOPFILE ] ; then
+            # The following circumlocution (repeated below as well) ensures
+            # that we record the true directory name and not one that is
+            # faked up with symlink names.
+            PWD= /bin/pwd
+        else
+            local HERE=$PWD
+            local T=
+            while [ \( ! \( -f $TOPFILE \) \) -a \( $PWD != "/" \) ]; do
+                \cd ..
+                T=`PWD= /bin/pwd -P`
+            done
+            \cd $HERE
+            if [ -f "$T/$TOPFILE" ]; then
+                echo $T
+            fi
+        fi
+    fi
+}
+
+function croot()
+{
+    local T=$(gettop)
+    if [ "$T" ]; then
+        if [ "$1" ]; then
+            \cd $(gettop)/$1
+        else
+            \cd $(gettop)
+        fi
+    else
+        echo "Couldn't locate the top of the tree.  Try setting TOP."
+    fi
+}
 
 ################################################################################
 # Docker
