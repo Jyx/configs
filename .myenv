@@ -39,7 +39,7 @@ if [ "$MY_COMPUTER" = "debby" ]; then
 ################################################################################
 elif [ "$MY_COMPUTER" = "guppy" ]; then
 	# OP-TEE
-	#export LAUNCH_TERMINAL="terminator -x"
+	export LAUNCH_TERMINAL="terminator -x"
 	export OPTEE_ROOT_PROJ_PATH="/home/jbech/devel/optee_projects"
 	export OPTEE_PROJ_PATH="${OPTEE_ROOT_PROJ_PATH}/qemu"
 	export TA_LOAD_ADDR="0x103020"
