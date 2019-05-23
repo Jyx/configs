@@ -9,7 +9,7 @@ alias ll='ls -al --color=auto'
 ################################################################################
 # Server alias
 ################################################################################
-alias bonito2='ssh -X jyx@jyx.mooo.com'
+alias bonito2='TERM=xterm ssh -X jyx@jyx.mooo.com'
 alias fsdata='ssh -X jyx@jyxpi.mooo.com'
 alias hackbox='ssh -X joakim.bech@hackbox.linaro.org'
 alias mount_hackbox='sshfs joakim.bech@hackbox.linaro.org:/home/joakim.bech /home/jbech/mnt/hackbox'
