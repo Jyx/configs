@@ -31,6 +31,9 @@ if [ "$MY_COMPUTER" = "debby" ]; then
 	# Path
 	export PATH=$PATH:$HOME/bin:$HOME/.local/bin
 
+	# Aliases only relevelant to "debby"
+	alias sshd='cd /media/jbech/SSHD_LINUX/'
+
 ################################################################################
 # Guppy - work
 ################################################################################
@@ -62,4 +65,7 @@ elif [ "$MY_COMPUTER" = "guppy" ]; then
 
 	# Path
 	export PATH=$PATH:$HOME/bin:$HOME/.local/bin
+
+	# Aliases only relevelant to "guppy"
+	alias optee_local='ssh -X optee@192.168.1.61'
 fi
