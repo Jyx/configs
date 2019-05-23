@@ -223,6 +223,7 @@ for_window [class="Adg_driver"] floating enable
 for_window [class="adg_driver"] floating enable
 for_window [title="Affinic Debugger 2.0.1"] floating enable
 for_window [title="Diffuse"] floating enable
+for_window [title="SqueezePlay"] floating enable
 #for_window [title="Zoom - Pro Account"] floating enable
 #for_window [class="zoom"] floating enable
 
