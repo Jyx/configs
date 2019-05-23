@@ -32,16 +32,25 @@ set dir=~/tmp//
 let g:explHideFiles='^\.,.*\.class$,.*\.swp$,.*\.o$,.*\.d$,\.DS_Store$'
 let g:netrw_list_hide= '.*\.o$,.*\.cmd$,\~$,\.orig$,.*\.ko$'
 
-" set the runtime path to include Vundle and initialize
+"================================================================================
+"= Vundle
+"================================================================================
+" 1. git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+" 2. Add Plugin lines
+" 3. Launch vim and run :PluginInstall
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'vim-airline/vim-airline'
 Plugin 'kien/ctrlp.vim'
 Plugin 'scrooloose/nerdtree'
+Plugin 'tpope/vim-fugitive'
 "Plugin 'Valloric/YouCompleteMe'
 call vundle#end()            " required
 filetype plugin indent on    " required
 
+"================================================================================
+"= Colors
+"================================================================================
 colorscheme molokai
 set bg=dark
 "let g:molokai_original = 1
@@ -56,6 +65,7 @@ let mapleader = "-"
 
 " NERDTree
 " autocmd vimenter * NERDTree
+let NERDTreeIgnore = ['\.o$', '\.elf$', '\.ta$', '\.swp$', 'GPATH$', 'GRTAGS$', 'GTAGS$']
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 nnoremap <leader>ns :NERDTree<cr>
 nnoremap <leader>nt :NERDTreeToggle<cr>
@@ -86,6 +96,9 @@ au BufRead,BufNewFile *.rst set ts=4 tw=80 sw=4
 
 " Python
 nnoremap <leader>pr :w<cr>:exec '!python' shellescape(@%, 1)<cr>
+
+" Text files
+au BufRead,BufNewFile *.txt set nocindent tw=80 spell
 
 nnoremap <leader>m :wa<CR>:make<CR>
 map <F7> <ESC>:wa<CR>:make<CR>
