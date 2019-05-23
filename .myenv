@@ -1,0 +1,65 @@
+# $MY_COMPUTER should preferably be set in .bashrc for each and every computer.
+
+################################################################################
+# Debby - home
+################################################################################
+if [ "$MY_COMPUTER" = "debby" ]; then
+	# OP-TEE
+	export LAUNCH_TERMINAL="terminator -x"
+	export OPTEE_ROOT_PROJ_PATH="/media/jbech/SSHD_LINUX/devel/optee_projects"
+	export OPTEE_PROJ_PATH="${OPTEE_ROOT_PROJ_PATH}/qemu"
+	export TA_LOAD_ADDR="0x103020"
+
+	# Buildroot
+	export BR2_DL_DIR=$HOME/tmp/buildroot_dl
+
+	# ccache
+	export CCACHE_DIR=/media/jbech/SSHD_LINUX/.ccache
+
+	# Editor
+	export EDITOR=vim
+
+	# Locales
+	export LC_ALL=en_US.UTF-8
+
+	# Prompt
+	export PS1="\[\033[32m\][\u@\h\[\033[37m\] \w\[\033[32m\]] \`parse_git_branch\`\\n\[\033[37m\]\$ "
+
+	# Term
+	export TERM=screen-256color
+
+	# Path
+	export PATH=$PATH:$HOME/bin:$HOME/.local/bin
+
+################################################################################
+# Guppy - work
+################################################################################
+elif [ "$MY_COMPUTER" = "guppy" ]; then
+	# OP-TEE
+	#export LAUNCH_TERMINAL="terminator -x"
+	export OPTEE_ROOT_PROJ_PATH="/home/jbech/devel/optee_projects"
+	export OPTEE_PROJ_PATH="${OPTEE_ROOT_PROJ_PATH}/qemu"
+	export TA_LOAD_ADDR="0x103020"
+
+
+	# Buildroot
+	export BR2_DL_DIR=$HOME/tmp/buildroot_dl
+
+	# ccache
+	export CCACHE_DIR=$HOME/.ccache
+
+	# Editor
+	export EDITOR=vim
+
+	# Locales
+	export LC_ALL=en_US.UTF-8
+
+	# Prompt
+	export PS1="\[\033[32m\][\u@\h\[\033[37m\] \w\[\033[32m\]] \`parse_git_branch\`\\n\[\033[37m\]\$ "
+
+	# Term
+	export TERM=screen-256color
+
+	# Path
+	export PATH=$PATH:$HOME/bin:$HOME/.local/bin
+fi

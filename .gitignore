@@ -4,3 +4,4 @@ GSYMS
 GTAGS
 *.swp
 .vim/bundle/*
+.vim/spell/sv.*
