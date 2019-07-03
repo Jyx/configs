@@ -84,4 +84,11 @@ set pgp_list_secring_command="gpg --no-verbose --batch --quiet --with-colons --l
 
 # This version uses --status-fd messages
 set pgp_good_sign="^\\[GNUPG:\\] GOODSIG"
+set pgp_auto_decode
+set pgp_replyencrypt=yes
+set pgp_timeout=1800
+bind compose p pgp-menu
+set pgp_sign_as = 189693C7
 
+#set pgp_auto_sign
+send-hook "~f your_email_address" set pgp_sign_as=YOUR_KEY_ID
