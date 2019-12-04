@@ -4,7 +4,7 @@ source $HOME/.myenv
 # Bash alias
 ################################################################################
 alias ls='ls --color=auto'
-alias ll='ls -al --color=auto'
+alias ll='ls -al --color -h --group-directories-first'
 
 ################################################################################
 # Server alias
@@ -110,9 +110,30 @@ function parse_git_dirty {
 }
 
 ################################################################################
+# Gerrit
+################################################################################
+alias gerrit_oemcrypto='git push gerrit HEAD:refs/for/oemcrypto-v15-dev'
+alias gerrit='ssh -p 29418 joakim.bech@dev-private-review.linaro.org gerrit'
+
+################################################################################
 # Repo related alias
 ################################################################################
+function rpo_ssh_to_git ()
+{
+	github_str='git remote add upstream git@github.com'
+	github_remote=`git remote -v | grep -e "^github." | head -1 | awk {'print $2'} | awk -F/ {'print $4 "/" $5'}`
+	echo "str: ${github_str}"
+	echo "str: ${github_remote}"
+	full_str="${github_str}:${github_remote}"
+	echo "${full_str}"
+	${full_str}
+	git remote update
+}
+
+#alias rpo_add_upstream='repo forall -c `rpo_ssh_to_git`'
+alias rpo_branch='repo forall -c '\''echo $REPO_PATH -- `git rev-parse --abbrev-ref HEAD`'\'''
 alias rpo_rev='repo forall -c '\''echo $REPO_PATH -- `git log --oneline -1`'\'''
+alias rpo_remote='repo forall -c '\''echo $REPO_PATH -- `git remote`'\'''
 alias rpo_clean_all="repo forall -c 'echo Cleaning ... \$REPO_PATH && git clean -xdf && git checkout -f'"
 alias rpo_jbech='repo forall -c "git remote add jbech git@github.com:jbech-linaro/\$REPO_PATH.git"'
 alias rpo_s='repo sync -j3 -d'
@@ -125,6 +146,12 @@ alias byobunew='byobu new -s'
 # Cscope specific
 ################################################################################
 alias cscopeme='find `pwd` -name "*.[chsS]" > cscope.files && cscope -b -q -k'
+
+################################################################################
+# Ctag
+################################################################################
+# To jump to a tag in vim, press: CTRL + ALT-GR and 9
+alias ctagscpp='ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .'
 
 ################################################################################
 # Hexdump
@@ -196,6 +223,7 @@ alias dr_stoprem='docker rm -f $(docker ps -a -q)'
 # ccache
 ################################################################################
 export USE_CCACHE=1
+export CCACHE_UMASK=002
 
 ################################################################################
 # QEMU Arm on x86

@@ -8,7 +8,7 @@
 [diff]
 	tool = diffuse
 [merge]
-	tool = diffuse
+	tool = meld
 [alias]
 	b = branch
 	ci = commit
@@ -24,6 +24,8 @@
 	graphviz = "!f() { echo 'digraph git {' ; git log --pretty='format:  %h -> { %p }' \"$@\" | sed 's/[0-9a-f][0-9a-f]*/\"&\"/g' ; echo '}'; }; f"
 	la = "!git config -l | grep alias | cut -c 7-"
 	g = grep --color
+	fixes = show --format='Fixes: %h ("%s")' -s
+	cite = log -1 --abbrev=12 --pretty=format:\"%h (\\\"%s\\\")\"
 
 #[imap]
 #	folder = "[Gmail]/Drafts"

@@ -79,6 +79,11 @@ let g:ctrlp_custom_ignore = {
 let g:ctrlp_by_filename = 1
 " \ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
 
+" Fix? for syntax highlightning issues
+"autocmd BufEnter * :syntax sync fromstart
+set redrawtime=10000
+syntax sync minlines=20
+
 " Spot extra whitespace
 au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match Error /\s\+$/
 
@@ -86,7 +91,7 @@ au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match Error /\s\+$/
 autocmd FileType mail set spell
 
 " Git
-au FileType gitcommit setlocal tw=72
+au FileType gitcommit setlocal tw=72 spell
 
 " Freeplane
 au BufRead,BufNewFile *.mm set filetype=xml
@@ -121,7 +126,7 @@ autocmd BufWritePost *.c,*.h silent exec '! if [ -f GTAGS ]; then global -u; fi'
 
 nnoremap <leader>cc :cscope f c <cword><cr>zz
 nnoremap <leader>ce :cscope f e <cword><cr>zz
-nnoremap <leader>cf :cscope f f  
+nnoremap <leader>cf :cscope f f
 nnoremap <leader>cg :cscope f g <cword><cr>zz
 nnoremap <leader>ci :cscope f i <cword>.h<cr>zz
 nnoremap <leader>cs :cscope f s <cword><cr>zz
