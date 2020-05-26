@@ -1,6 +1,8 @@
 import gdb
 import os
 from curses.ascii import isgraph
+import subprocess
+import fnmatch
 
 # All paths here have been verified and used with OP-TEE v3.2.0
 
@@ -60,7 +62,7 @@ TA_LOAD_ADDR="0x10d020"
 # Main path to a OP-TEE project which can be overridden by exporting
 # OPTEE_PROJ_PATH to another valid setup coming from build.git
 # (https://github.com/OP-TEE/build)
-OPTEE_PROJ_PATH = "/media/jbech/SSHD_LINUX/devel/optee_projects/qemu"
+OPTEE_PROJ_PATH = "/media/jbech/TSHB_LINUX/devel/optee_projects/qemu"
 if 'OPTEE_PROJ_PATH' in os.environ:
     OPTEE_PROJ_PATH = os.environ['OPTEE_PROJ_PATH']
     # QEMU v7 is the default, but if OPTEE_PROJ_PATH it's probably QEMU v8 and
@@ -73,7 +75,10 @@ if 'OPTEE_PROJ_PATH' in os.environ:
 if 'TA_LOAD_ADDR' in os.environ:
     TA_LOAD_ADDR = os.environ['TA_LOAD_ADDR']
 
-IS_CONNECTED = False
+LDELF_LOADED = False
+TEE_LOADED = False
+
+ta_loaded_symbols = {}
 
 class Connect(gdb.Command):
     def __init__(self):
@@ -91,7 +96,6 @@ class Connect(gdb.Command):
 
         print("Connecting to {} at {}".format(name, remote))
         gdb.execute("target remote {}".format(remote))
-        IS_CONNECTED = True
 
     def complete(self, text, word):
         # Sync the array with invoke
@@ -105,11 +109,207 @@ class LoadOPTEE(gdb.Command):
         super(LoadOPTEE, self).__init__("load_tee", gdb.COMMAND_USER)
 
     def invoke(self, arg, from_tty):
-        print("Loading TEE core symbols for OP-TEE!")
-        gdb.execute("symbol-file {}/{}".format(OPTEE_PROJ_PATH, TEE_ELF))
+        load_tee()
         gdb.execute("b tee_entry_std")
 
 LoadOPTEE()
+
+# Function used to read segments from a given .elf file path, returning
+# dictionary containing segments addresses (i.e. .text, .rodata, .data, .bss).
+def read_segments(file):
+    result = subprocess.check_output( ("readelf -S " + file).split(' '))
+    result = result.split('\n')
+    offsets = {}
+
+    for line in result:
+        tmp = line[line.find(' .') : line.find('\t')].split(' ')
+        seg = [l for l in tmp if l != ""]
+        if seg != []:
+            offsets[seg[0]] = seg[2]
+
+    return offsets
+
+
+# Recursively traverses the "path", looking for files matching "pattern".
+def find_file(pattern, path):
+    result = []
+    for root, dirs, files in os.walk(path):
+        for name in files:
+            if fnmatch.fnmatch(name, pattern):
+                result.append(os.path.join(root, name))
+    return result
+
+
+# Finds the path to a TA based on the timeLow part of the UUID.
+def find_ta_elf_file(timelow):
+    ta = "{}-*.elf".format(timelow)
+    ta_list = find_file(ta, OPTEE_PROJ_PATH)
+    # We don't want the stripped ones.
+    ta_list = [ta for ta in ta_list if 'stripped' not in ta]
+    # We only want a single match
+    if len(ta_list) != 1:
+        print("Couldn't find any matching TA!")
+        # FIXME: Take care of errors
+        return None
+    return ta_list[0]
+
+
+# Should be called when hitting a breakpoint in ldelf that knows about the TA
+# addresses.
+def auto_load_ta():
+    global ta_loaded_symbols
+
+    if "elf" in ta_loaded_symbols:
+        gdb.post_event(Executor("continue"))
+        return
+
+    ta_load_addr = gdb.parse_and_eval("ta_load_addr")
+    timelow = gdb.parse_and_eval("uuid->timeLow")
+    # Strip away 0x
+    timelow = str(timelow)[2:]
+    ta_elf = find_ta_elf_file(timelow)
+    ta_loaded_symbols["elf"] = ta_elf
+
+    segments = read_segments(ta_elf)
+    ta_load_addr = int(ta_load_addr)
+
+    ta_loaded_symbols[".text"]      = hex(ta_load_addr + int(segments['.text'], 16))
+    ta_loaded_symbols[".rodata"]    = hex(ta_load_addr + int(segments['.rodata'], 16))
+    ta_loaded_symbols[".data"]      = hex(ta_load_addr + int(segments['.data'], 16))
+    ta_loaded_symbols[".bss"]       = hex(ta_load_addr + int(segments['.bss'], 16))
+
+    gdb.execute("add-symbol-file {} {} -s .rodata {} -s .data {} -s .bss {}".format(
+        ta_elf,
+        ta_loaded_symbols[".text"],
+        ta_loaded_symbols[".rodata"],
+        ta_loaded_symbols[".data"],
+        ta_loaded_symbols[".bss"]))
+    gdb.execute("tb TA_InvokeCommandEntryPoint")
+    gdb.post_event(Executor("continue"))
+
+
+def auto_load_ldelf():
+    global OPTEE_PROJ_PATH
+    global LDELF_LOADED
+    global ta_loaded_symbols
+
+    # Clear out old TA's that has previously been auto-loaded.
+    if "elf" in ta_loaded_symbols:
+        gdb.execute("remove-symbol-file {}".format(ta_loaded_symbols["elf"]))
+        ta_loaded_symbols.clear()
+
+    if LDELF_LOADED:
+        gdb.post_event(Executor("continue"))
+        return
+
+    print("Loading LDELF symbols for OP-TEE")
+    # First find the elf for it.
+    ldelf = find_file("ldelf.elf", OPTEE_PROJ_PATH + "/optee_os")
+    print(ldelf)
+    if ldelf is None or len(ldelf) != 1:
+        print("Couldn't find ldelf.elf (or found too many)!")
+        return
+
+    # We want it as a string and not as an array.
+    ldelf = ldelf[0]
+
+    ldelf_addr = gdb.parse_and_eval("ldelf_addr")
+    print("LDELF load address: {}".format(ldelf_addr))
+
+    segments = read_segments(ldelf)
+
+    # Convert to int, FIXME: Needed?
+    ldelf_addr = int(ldelf_addr)
+
+    RODATA_ADDR = hex(ldelf_addr + int(segments['.rodata'], 16))
+    DATA_ADDR = hex(ldelf_addr + int(segments['.data'], 16))
+    BSS_ADDR = hex(ldelf_addr + int(segments['.bss'], 16))
+    ldelf_addr = hex(ldelf_addr)
+
+    # Segments retrieved are explicitly loaded
+    gdb.execute("add-symbol-file {} {} -s .rodata {} -s .data {} -s .bss {}".format(ldelf, ldelf_addr, RODATA_ADDR, DATA_ADDR, BSS_ADDR))
+    gdb.execute("b gdb_ldelf_helper")
+    gdb.post_event(Executor("continue"))
+    LDELF_LOADED = True
+
+
+def load_tee():
+    global TEE_LOADED
+
+    if TEE_LOADED:
+        return
+
+    print("Loading TEE core symbols for OP-TEE!")
+    gdb.execute("symbol-file {}/{}".format(OPTEE_PROJ_PATH, TEE_ELF))
+    TEE_LOADED = True
+
+
+################################################################################
+# Setup up handlers for stop events
+################################################################################
+
+class Executor:
+    def __init__(self, cmd):
+        self.__cmd = cmd
+
+    def __call__(self):
+        gdb.execute(self.__cmd)
+
+def stop_handler(event):
+    if isinstance(event, gdb.BreakpointEvent):
+        try:
+            if event.breakpoint.location == "gdb_helper":
+                auto_load_ldelf()
+            elif event.breakpoint.location == "gdb_ldelf_helper":
+                auto_load_ta()
+            else:
+                pass
+        except RuntimeError:
+            pass
+    else:
+        pass
+
+
+def register_event_handler():
+    gdb.events.stop.connect(stop_handler)
+    #unregister
+    #gdb.events.stop.disconnect(stop_handler)
+
+
+register_event_handler()
+
+################################################################################
+# User created GDB commands
+################################################################################
+
+class AutoLoadTA(gdb.Command):
+    def __init__(self):
+        super(AutoLoadTA, self).__init__("auto_load_ta", gdb.COMMAND_USER)
+
+    def invoke(self, arg, from_tty):
+        print("Automatically try to load TA's")
+
+        if arg == "on" or arg == "":
+            load_tee()
+            gdb.execute("b gdb_helper")
+        elif arg == "off":
+            # Remove breakpoints, unload
+            bp = gdb.execute("info b", to_string=True)
+            if "gdb_helper" in bp:
+                gdb.execute("clear gdb_helper")
+            if "gdb_ldelf_helper" in bp:
+                gdb.execute("clear gdb_ldelf_helper")
+                # FIXME: Unload ldelf ...
+        else:
+            print("Unknown argument!")
+
+    def complete(self, text, word):
+        # Sync the array with invoke
+        candidates = ['on', 'off']
+        return filter(lambda candidate: candidate.startswith(word), candidates)
+
+AutoLoadTA()
+
 
 class LoadTA(gdb.Command):
     def __init__(self):
@@ -170,6 +370,7 @@ class LoadTA(gdb.Command):
                 return
 
             gdb.execute("add-symbol-file {}/{} {}".format(OPTEE_PROJ_PATH, ta, TA_LOAD_ADDR))
+
             gdb.execute("b TA_InvokeCommandEntryPoint")
 
         except IndexError:
@@ -183,6 +384,7 @@ class LoadTA(gdb.Command):
         return filter(lambda candidate: candidate.startswith(word), candidates)
 
 LoadTA()
+
 
 class LoadHost(gdb.Command):
     def __init__(self):
@@ -224,6 +426,7 @@ class LoadHost(gdb.Command):
         return filter(lambda candidate: candidate.startswith(word), candidates)
 
 LoadHost()
+
 
 class LoadTFA(gdb.Command):
     def __init__(self):
@@ -267,6 +470,7 @@ class LoadTFA(gdb.Command):
 
 LoadTFA()
 
+
 class LoadLinux(gdb.Command):
     def __init__(self):
         super(LoadLinux, self).__init__("load_linux", gdb.COMMAND_USER)
@@ -280,6 +484,7 @@ class LoadLinux(gdb.Command):
 
 LoadLinux()
 
+
 class LoadUBoot(gdb.Command):
     def __init__(self):
         super(LoadUBoot, self).__init__("load_uboot", gdb.COMMAND_USER)
@@ -290,6 +495,7 @@ class LoadUBoot(gdb.Command):
         gdb.execute("b _main")
 
 LoadUBoot()
+
 
 class OPTEECmd(gdb.Command):
     def __init__(self):
