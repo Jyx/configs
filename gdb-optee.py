@@ -79,6 +79,7 @@ LDELF_LOADED = False
 TEE_LOADED = False
 
 ta_loaded_symbols = {}
+ta_path_cache = {}
 
 class Connect(gdb.Command):
     def __init__(self):
@@ -154,6 +155,18 @@ def find_ta_elf_file(timelow):
     return ta_list[0]
 
 
+# Cache all paths on first run to avoid traversing the filesystem on every
+# breakpoint hit.
+def cache_ta_paths():
+    ta_list = find_file("*.elf", OPTEE_PROJ_PATH + "/out-br")
+    for ta in ta_list:
+        # We don't want the stripped ones.
+        if 'stripped' not in ta:
+            timelow = os.path.basename(ta)[:8]
+            ta_path_cache[timelow] = ta
+
+cache_ta_paths()
+
 # Should be called when hitting a breakpoint in ldelf that knows about the TA
 # addresses.
 def auto_load_ta():
@@ -167,7 +180,13 @@ def auto_load_ta():
     timelow = gdb.parse_and_eval("uuid->timeLow")
     # Strip away 0x
     timelow = str(timelow)[2:]
-    ta_elf = find_ta_elf_file(timelow)
+    ta_elf = None
+    if timelow in ta_path_cache:
+        ta_elf = ta_path_cache[timelow]
+    else:
+        print("No TA's in cache")
+        #ta_elf = find_ta_elf_file(timelow)
+
     ta_loaded_symbols["elf"] = ta_elf
 
     segments = read_segments(ta_elf)
