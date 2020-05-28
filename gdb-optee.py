@@ -571,31 +571,42 @@ class OPTEECmd(gdb.Command):
         super(OPTEECmd, self).__init__("optee-stat", gdb.COMMAND_USER)
 
     def invoke(self, arg, from_tty):
-        if arg == "memlayout":
-            CFG_SHMEM_START = gdb.parse_and_eval("CFG_SHMEM_START")
-            CFG_SHMEM_SIZE = gdb.parse_and_eval("CFG_SHMEM_SIZE")
-            print("SHMEM:  0x{:08x} - 0x{:08x}   size: 0x{:08x} [{:d}]".format(
-                int(str(CFG_SHMEM_START), 16),
-                int(str(CFG_SHMEM_START + CFG_SHMEM_SIZE), 16),
-                int(str(CFG_SHMEM_SIZE), 16),
-                int(CFG_SHMEM_SIZE)))
+        if arg == "memstat":
+            range_vars = [
+                    ("CFG_SHMEM_START", "CFG_SHMEM_SIZE"),
+                    ("CFG_TZDRAM_START", "CFG_TZDRAM_SIZE")
+                    ]
 
-            CFG_TZDRAM_START = gdb.parse_and_eval("CFG_TZDRAM_START")
-            CFG_TZDRAM_SIZE = gdb.parse_and_eval("CFG_TZDRAM_SIZE")
-            print("TZDRAM: 0x{:08x} - 0x{:08x}   size: 0x{:08x} [{:d}]".format(
-                int(str(CFG_TZDRAM_START), 16),
-                int(str(CFG_TZDRAM_START + CFG_TZDRAM_SIZE), 16),
-                int(str(CFG_TZDRAM_SIZE), 16),
-                int(CFG_TZDRAM_SIZE)))
+            print("\n{:30}  {}\n{}".format("TYPE", "START-END (size)", "-"*80))
+            for var in sorted(range_vars):
+                start = gdb.parse_and_eval(var[0])
+                size = gdb.parse_and_eval(var[1])
+                print("{:30}: 0x{:08x}-0x{:08x} (0x{:08x}, {})".format(
+                      var[0],
+                      int(str(start), 16),
+                      int(str(start + size), 16),
+                      int(str(size), 16),
+                      str(size/float(1 << 20)) + " MB"))
 
-            CFG_TEE_RAM_VA_SIZE = gdb.parse_and_eval("CFG_TEE_RAM_VA_SIZE")
-            print("TEE_RAM_VA_SIZE: {} [{:d}]".format(
-                CFG_TEE_RAM_VA_SIZE,
-                int(CFG_TEE_RAM_VA_SIZE)))
+            single_vars = [
+                    "CFG_CORE_HEAP_SIZE",
+                    "CFG_LPAE_ADDR_SPACE_SIZE",
+                    "CFG_TEE_RAM_VA_SIZE",
+                    "CFG_CORE_NEX_HEAP_SIZE",
+                    "CFG_DTB_MAX_SIZE",
+                    "CFG_RESERVED_VASPACE_SIZE",
+                    "CFG_TEE_SDP_MEM_SIZE"
+                    ]
+
+            print("\n{:30}  {}\n{}".format("TYPE", "SIZE", "-"*80))
+            for cfg in sorted(single_vars):
+                val = gdb.parse_and_eval(cfg)
+                print("{:30}: {:16} {}".format(
+                      cfg, val, str(val/float(1 << 20)) + " MB"))
 
     def complete(self, text, word):
         # Sync the array with invoke
-        candidates = ['memlayout']
+        candidates = ['memstat']
         return filter(lambda candidate: candidate.startswith(word), candidates)
 
 
