@@ -75,9 +75,9 @@ if 'OPTEE_PROJ_PATH' in os.environ:
 if 'TA_LOAD_ADDR' in os.environ:
     TA_LOAD_ADDR = os.environ['TA_LOAD_ADDR']
 
-LDELF_LOADED = False
 TEE_LOADED = False
 
+ldelf_loaded_symbols = {}
 ta_loaded_symbols = {}
 ta_path_cache = {}
 
@@ -171,6 +171,7 @@ cache_ta_paths()
 # addresses.
 def auto_load_ta():
     global ta_loaded_symbols
+    global ta_path_cache
 
     if "elf" in ta_loaded_symbols:
         gdb.post_event(Executor("continue"))
@@ -192,10 +193,10 @@ def auto_load_ta():
     segments = read_segments(ta_elf)
     ta_load_addr = int(ta_load_addr)
 
-    ta_loaded_symbols[".text"]      = hex(ta_load_addr + int(segments['.text'], 16))
-    ta_loaded_symbols[".rodata"]    = hex(ta_load_addr + int(segments['.rodata'], 16))
-    ta_loaded_symbols[".data"]      = hex(ta_load_addr + int(segments['.data'], 16))
-    ta_loaded_symbols[".bss"]       = hex(ta_load_addr + int(segments['.bss'], 16))
+    ta_loaded_symbols[".text"] = hex(ta_load_addr + int(segments['.text'], 16))
+    ta_loaded_symbols[".rodata"] = hex(ta_load_addr + int(segments['.rodata'], 16))
+    ta_loaded_symbols[".data"] = hex(ta_load_addr + int(segments['.data'], 16))
+    ta_loaded_symbols[".bss"] = hex(ta_load_addr + int(segments['.bss'], 16))
 
     gdb.execute("add-symbol-file {} {} -s .rodata {} -s .data {} -s .bss {}".format(
         ta_elf,
@@ -209,47 +210,49 @@ def auto_load_ta():
 
 def auto_load_ldelf():
     global OPTEE_PROJ_PATH
-    global LDELF_LOADED
     global ta_loaded_symbols
+    global ldelf_loaded_symbols
 
     # Clear out old TA's that has previously been auto-loaded.
     if "elf" in ta_loaded_symbols:
         gdb.execute("remove-symbol-file {}".format(ta_loaded_symbols["elf"]))
         ta_loaded_symbols.clear()
 
-    if LDELF_LOADED:
+    if "ldelf.elf" in ldelf_loaded_symbols:
         gdb.post_event(Executor("continue"))
         return
 
     print("Loading LDELF symbols for OP-TEE")
-    # First find the elf for it.
-    ldelf = find_file("ldelf.elf", OPTEE_PROJ_PATH + "/optee_os")
-    print(ldelf)
-    if ldelf is None or len(ldelf) != 1:
-        print("Couldn't find ldelf.elf (or found too many)!")
-        return
+    if "ldelf.elf" not in ldelf_loaded_symbols:
+        ldelf = find_file("ldelf.elf", OPTEE_PROJ_PATH + "/optee_os")
+        if ldelf is None or len(ldelf) != 1:
+            print("Couldn't find ldelf.elf (or found too many)!")
+            return
+        # We want it as a string and not as an array.
+        ldelf_loaded_symbols["ldelf.elf"] = ldelf[0]
 
-    # We want it as a string and not as an array.
-    ldelf = ldelf[0]
+    print(ldelf_loaded_symbols["ldelf.elf"])
 
     ldelf_addr = gdb.parse_and_eval("ldelf_addr")
     print("LDELF load address: {}".format(ldelf_addr))
 
-    segments = read_segments(ldelf)
-
-    # Convert to int, FIXME: Needed?
+    segments = read_segments(ldelf_loaded_symbols["ldelf.elf"])
     ldelf_addr = int(ldelf_addr)
 
-    RODATA_ADDR = hex(ldelf_addr + int(segments['.rodata'], 16))
-    DATA_ADDR = hex(ldelf_addr + int(segments['.data'], 16))
-    BSS_ADDR = hex(ldelf_addr + int(segments['.bss'], 16))
-    ldelf_addr = hex(ldelf_addr)
+    ldelf_loaded_symbols[".text"] = hex(ldelf_addr + int(segments['.text'], 16))
+    ldelf_loaded_symbols[".rodata"] = hex(ldelf_addr + int(segments['.rodata'], 16))
+    ldelf_loaded_symbols[".data"] = hex(ldelf_addr + int(segments['.data'], 16))
+    ldelf_loaded_symbols[".bss"] = hex(ldelf_addr + int(segments['.bss'], 16))
 
     # Segments retrieved are explicitly loaded
-    gdb.execute("add-symbol-file {} {} -s .rodata {} -s .data {} -s .bss {}".format(ldelf, ldelf_addr, RODATA_ADDR, DATA_ADDR, BSS_ADDR))
+    gdb.execute("add-symbol-file {} {} -s .rodata {} -s .data {} -s .bss {}".format(
+        ldelf_loaded_symbols["ldelf.elf"],
+        ldelf_loaded_symbols[".text"],
+        ldelf_loaded_symbols[".rodata"],
+        ldelf_loaded_symbols[".data"],
+        ldelf_loaded_symbols[".bss"]))
     gdb.execute("b gdb_ldelf_helper")
     gdb.post_event(Executor("continue"))
-    LDELF_LOADED = True
 
 
 def load_tee():
@@ -318,7 +321,8 @@ class AutoLoadTA(gdb.Command):
                 gdb.execute("clear gdb_helper")
             if "gdb_ldelf_helper" in bp:
                 gdb.execute("clear gdb_ldelf_helper")
-                # FIXME: Unload ldelf ...
+                if "ldelf.elf" in ldelf_loaded_symbols:
+                    gdb.execute("remove-symbol-file {}".format(ldelf_loaded_symbols["ldelf.elf"]))
         else:
             print("Unknown argument!")
 
