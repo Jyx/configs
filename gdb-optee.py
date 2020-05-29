@@ -611,3 +611,43 @@ class OPTEECmd(gdb.Command):
 
 
 OPTEECmd()
+
+
+class TEECoreLinkedListPrinter(gdb.Command):
+    """Prints the ListNode from our example in a nice format!"""
+    def __init__(self):
+        super(TEECoreLinkedListPrinter, self).__init__("tee-ll-dump", gdb.COMMAND_USER)
+
+    def invoke(self, arg, from_tty):
+        if arg == "tee_open_sessions":
+            node_ptr = gdb.parse_and_eval("tee_open_sessions.tqh_first")
+            count = 0
+            while node_ptr != 0:
+                uuid = node_ptr['clnt_id']['uuid']
+                print("{:3}: {:16} {:10}-{:6}-{:6}-{}".format(
+                      count,
+                      "uuid:",
+                      uuid['timeLow'],
+                      uuid['timeMid'],
+                      uuid['timeHiAndVersion'],
+                      uuid['clockSeqAndNode']))
+
+                ctx_uuid = node_ptr['ctx']['uuid']
+                print("{:4} {:16} {:10}-{:6}-{:6}-{}".format(
+                      "",
+                      "ctx->uuid:",
+                      ctx_uuid['timeLow'],
+                      ctx_uuid['timeMid'],
+                      ctx_uuid['timeHiAndVersion'],
+                      ctx_uuid['clockSeqAndNode']))
+                node_ptr = node_ptr['link']['tqe_next']
+                count += 1
+            node_ptr = None
+
+    def complete(self, text, word):
+        # Sync the array with invoke
+        candidates = ['tee_open_sessions']
+        return filter(lambda candidate: candidate.startswith(word), candidates)
+
+
+TEECoreLinkedListPrinter()
