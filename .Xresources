@@ -1,69 +1,138 @@
-#define S_base03        #002b36
-#define S_base02        #073642
-#define S_base01        #586e75
-#define S_base00        #657b83
-#define S_base0         #839496
-#define S_base1         #93a1a1
-#define S_base2         #eee8d5
-#define S_base3         #fdf6e3
+! ------------------------------------------------------------------------------
+! Colour Configuration
+! ------------------------------------------------------------------------------
 
-*background:            S_base03
-*foreground:            S_base0
-*fadeColor:             S_base03
-*cursorColor:           S_base1
-*pointerColorBackground:S_base01
-*pointerColorForeground:S_base1
+! special
+*.foreground:   #d8dee8
+*.background:   #2f343f
+*.cursorColor:  #b48ead
 
-#define S_yellow        #b58900
-#define S_orange        #cb4b16
-#define S_red           #dc322f
-#define S_magenta       #d33682
-#define S_violet        #6c71c4
-#define S_blue          #268bd2
-#define S_cyan          #2aa198
-#define S_green         #859900
+! black
+*.color0  : #4b5262
+*.color8  : #434a5a
 
-!! black dark/light
-*color0:                S_base02
-*color8:                S_base03
+! red
+*.color1  : #bf616a
+*.color9  : #b3555e
 
-!! red dark/light
-*color1:                S_red
-*color9:                S_orange
+! green
+*.color2  : #a3be8c
+*.color10 : #93ae7c
 
-!! green dark/light
-*color2:                S_green
-*color10:               S_base01
+! yellow
+*.color3  : #ebcb8b
+*.color11 : #dbbb7b
 
-!! yellow dark/light
-*color3:                S_yellow
-*color11:               S_base00
+! blue
+*.color4  : #81a1c1
+*.color12 : #7191b1
 
-!! blue dark/light
-*color4:                S_blue
-*color12:               S_base0
+! magenta
+*.color5  : #b48ead
+*.color13 : #a6809f
 
-!! magenta dark/light
-*color5:                S_magenta
-*color13:               S_violet
+! cyan
+*.color6  : #89d0bA
+*.color14 : #7dbba8
 
-!! cyan dark/light
-*color6:                S_cyan
-*color14:               S_base1
+! white
+*.color7  : #e5e9f0
+*.color15 : #d1d5dc
 
-!! white dark/light
-*color7:                S_base2
-*color15:               S_base3
+! ------------------------------------------------------------------------------
+! Font configuration
+! ------------------------------------------------------------------------------
 
-!! xterm*savelines: 16384
-!! XTerm*faceName: Dejavu Sans Mono
-!! XTerm*faceSize: 9
-XTerm*selectToClipboard: true
+!URxvt*font:		xft:M+ 1mn:regular:size=10
+!URxvt*boldFont:		xft:M+ 1mn:bold:size=10
+!URxvt*italicFont:	xft:M+ 1mn:italic:size=10
+!URxvt*boldItalicFont:	xft:M+ 1mn:bold italic:size=10
+URxvt*font:		xft:monospace:regular:size=9
+URxvt*boldFont:		xft:monospace:bold:size=9
+URxvt*italicFont:	xft:monospace:italic:size=9
+URxvt*boldItalicFont:	xft:monospace:bold italic:size=9
 
-!!Xft.dpi: 192
+! ------------------------------------------------------------------------------
+! Xft Font Configuration
+! ------------------------------------------------------------------------------
+
 Xft.autohint: 0
-Xft.lcdfilter:  lcddefault
-Xft.hintstyle:  hintfull
+Xft.lcdfilter: lcddefault
+Xft.hintstyle: hintslight
 Xft.hinting: 1
 Xft.antialias: 1
 Xft.rgba: rgb
+
+! ------------------------------------------------------------------------------
+! URxvt configs
+! ------------------------------------------------------------------------------
+
+! font spacing
+URxvt*letterSpace:		-1
+URxvt.lineSpace:		-1
+
+! general settings
+URxvt*saveline:			15000
+URxvt*termName:			rxvt-256color
+URxvt*iso14755:			false
+URxvt*urgentOnBell:		true
+
+! appearance
+URxvt*depth:			5
+URxvt*scrollBar:		false
+URxvt*scrollBar_right:		false
+URxvt*internalBorder:		5
+URxvt*externalBorder:		2
+URxvt.geometry:			84x22
+
+! perl extensions
+URxvt.perl-ext-common:		default,clipboard,url-select,keyboard-select,resize-font
+
+! logging
+URxvt.print-pipe:		cat > $(echo $HOME/tmp/logs/urxvt.dump.$(date +'%Y%m%d-%H%M-%S'))
+
+! Clear the log window
+URxvt.keysym.M-l:		command:\033c
+
+! macros for clipboard and selection
+URxvt.copyCommand:		xclip -i -selection clipboard
+URxvt.pasteCommand:		xclip -o -selection clipboard
+URxvt.keysym.M-c:		perl:clipboard:copy
+URxvt.keysym.M-v:		perl:clipboard:paste
+URxvt.keysym.M-C-v:		perl:clipboard:paste_escaped
+URxvt.keysym.M-Escape:		perl:keyboard-select:activate
+URxvt.keysym.M-s:		perl:keyboard-select:search
+URxvt.keysym.M-u:		perl:url-select:select_next
+URxvt.urlLauncher:		google-chrome
+URxvt.underlineURLs:		true
+URxvt.urlButton:		1
+
+! scroll one line
+URxvt.keysym.Shift-Up:		command:\033]720;1\007
+URxvt.keysym.Shift-Down:	command:\033]721;1\007
+
+! control arrow
+URxvt.keysym.Control-Up:	\033[1;5A
+URxvt.keysym.Control-Down:	\033[1;5B
+URxvt.keysym.Control-Right:	\033[1;5C
+URxvt.keysym.Control-Left:	\033[1;5D
+
+! ------------------------------------------------------------------------------
+! Rofi configs
+! ------------------------------------------------------------------------------
+
+rofi.color-enabled: true
+rofi.color-window: #2e3440, #2e3440, #2e3440
+rofi.color-normal: #2e3440, #d8dee9, #2e3440, #2e3440, #bf616a
+rofi.color-active: #2e3440, #b48ead, #2e3440, #2e3440, #93e5cc
+rofi.color-urgent: #2e3440, #ebcb8b, #2e3440, #2e3440, #ebcb8b
+rofi.modi: run,drun,window
+
+! ------------------------------------------------------------------------------
+! Dmenu configs
+! ------------------------------------------------------------------------------
+
+dmenu.selforeground:	#d8dee9
+dmenu.background:	#2e3440
+dmenu.selbackground:	#bf616a
+dmenu.foreground:	#d8dee9
