@@ -1,0 +1,203 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+#
+# Copyright (C) 2021 Joakim Bech
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from __future__ import print_function
+
+import collections
+import datetime
+import errno
+import optparse
+import os
+import pathlib
+import platform
+import re
+import shlex
+import shutil
+import stat
+import subprocess
+import sys
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+def get_parser():
+    parser = optparse.OptionParser()
+ 
+    # Morello
+    group = parser.add_option_group('Morello tools')
+    group.add_option('-c', '--checkout',
+                     action='store_true', dest="checkout", default=False,
+                     help='Checkout the branch as specified by "-b"')
+
+    group.add_option('-b', '--branch', dest='branch',
+                     help='BRANCH to look for (other than default)', metavar='BRANCH')
+
+    group.add_option('--backupdir', dest='backupdir',
+                     help='BACKUPDIR to backup current gits', metavar='BACKUPDIR')
+
+    group.add_option('-p', '--project', dest='project',
+                     help='a single PROJECT we want to show', metavar='PROJECT')
+ 
+    return parser
+
+
+def show_commit(l):
+    print("{}\n\n\n================================================================================".format(bcolors.HEADER))
+    print("= Show commit info for project: {}".format(l))
+    print("================================================================================{}".format(bcolors.ENDC))
+    stream = os.popen("cd {}/{} && git log -1 --stat".format(os.getcwd(), l))
+    output = stream.read()
+    print("{}{}{}".format(bcolors.OKCYAN, output, bcolors.ENDC))
+
+    stream = os.popen("cd {}/{} && git remote -v".format(os.getcwd(), l))
+    output = stream.readlines()
+    for line in output:
+        if "(push)" in line:
+            print("{}{}{}".format(bcolors.WARNING, line.strip(), bcolors.ENDC))
+
+    stream = os.popen("cd {}/{} && git branch".format(os.getcwd(), l))
+    output = stream.readlines()
+    print("\n{}Current branch: {}{}".format(bcolors.OKGREEN, output[0].strip(), bcolors.ENDC))
+
+    stream = os.popen("cd {}/{} && git describe --tags".format(os.getcwd(), l))
+    output = stream.read()
+    print("\n{}Last tag: {}{}".format(bcolors.BOLD, output, bcolors.ENDC))
+
+
+def do_backup(l, target_path):
+    print("Doing back from: {} to {}".format(l, target_path))
+
+    if target_path == "/" or target_path == "" or target_path is None:
+        print("No permssion to back to: {}".format(target_path))
+        sys.exit(1)
+
+    folders = l.split("/")
+    source_path = "/".join(folders[0:-1])
+    project = folders[-1]
+
+    print("Source directory: {}".format(source_path))
+    print("Project: {}".format(project))
+
+    target_path = "{}/{}".format(target_path, source_path)
+    print("Target directory: {}".format(target_path))
+
+    full_target_path = "{}/{}".format(target_path, project)
+ 
+    if os.path.isdir(full_target_path):
+        # Always delete the folder if it already exists
+        print("Deleting ... {}".format(full_target_path))
+        shutil.rmtree(full_target_path)
+
+    if not os.path.isdir(target_path):
+        print("Create {}".format(target_path))
+        os.makedirs(target_path)
+
+    full_source_path = "{}/{}/{}".format(os.getcwd(), source_path, project)
+
+    if not os.path.isdir(full_source_path):
+        print("Source doesn't exists: {}".format(full_source_path))
+        sys.exit(1)
+
+    stream = os.popen("cd {} && git clone -q {}".format(target_path, full_source_path))
+    print(stream.read())
+
+    return full_target_path
+
+
+def checkout_branch(target_path, branch):
+    # print("cd {} && git checkout -t origin/{}".format(target_path, branch))
+    stream = os.popen("cd {} && git checkout -q -t origin/{}".format(target_path, branch))
+    print(stream.read())
+
+
+def traverse(b=None, project=None, backupdir=None, checkout=False):
+    enable_print = False
+    stream = os.popen('repo branches')
+    output = stream.readlines()
+    for line in output:
+        l = line.strip()
+        if "| in" in l:
+            if b is not None and b in l:
+                enable_print = True
+                continue
+            else:
+                enable_print = False
+                continue
+ 
+        if enable_print or b is None:
+            if project is None:
+                show_commit(l)
+            elif project in line:
+                show_commit(l)
+
+        if enable_print and checkout == True and b is not None:
+            stream = os.popen("cd {} && git checkout {}".format(l, b))
+            print(stream.read())
+
+
+        if enable_print and backupdir is not None:
+            target_path = do_backup(l, backupdir)
+            if enable_print and b is not None:
+                checkout_branch(target_path, b)
+
+
+
+def main(orig_args):
+    args = None
+    parser = get_parser()
+    (options, args) = parser.parse_args(args)
+    if args:
+        parser.print_usage()
+        sys.exit(1)
+
+    if options.branch:
+        print("branch: {}".format(options.branch))
+
+    if options.project:
+        print("project: {}".format(options.project))
+
+    if options.backupdir:
+        print("Backup directory: {}".format(options.backupdir))
+
+    if options.checkout:
+        print("checkout: {}".format(options.checkout))
+
+    # Are we running the script from the correct location?
+    trypath = "{}/{}".format(os.getcwd(), ".repo")
+    if not os.path.isdir(trypath):
+        print("{}ERROR: Script must be called from the repo root (dir containing .repo){}".format(
+              bcolors.FAIL, bcolors.ENDC))
+        sys.exit(1)
+
+    traverse(options.branch,
+             options.project,
+             options.backupdir,
+             options.checkout)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
