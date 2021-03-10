@@ -3,18 +3,20 @@
 ################################################################################
 # Debby - home
 ################################################################################
-if [ "$MY_COMPUTER" = "debby" ]; then
+if [ "$MY_COMPUTER" = "goby" ]; then
 	# OP-TEE
-	export LAUNCH_TERMINAL="terminator -x"
-	export OPTEE_ROOT_PROJ_PATH="/media/jbech/SSHD_LINUX/devel/optee_projects"
+	#export LAUNCH_TERMINAL="xterm -e"
+	#export LAUNCH_TERMINAL="urxvt -bg Black -e bash -c"
+	export LAUNCH_TERMINAL="urxvt -fn 'xft:Monospace:pixelsize=10' -bg Black -e bash -c"
+	export OPTEE_ROOT_PROJ_PATH="/media/jbech/TSHB_LINUX/devel/optee_projects"
 	export OPTEE_PROJ_PATH="${OPTEE_ROOT_PROJ_PATH}/qemu"
-	export TA_LOAD_ADDR="0x103020"
+	export TA_LOAD_ADDR="0x113020"
 
 	# Buildroot
 	export BR2_DL_DIR=$HOME/tmp/buildroot_dl
 
 	# ccache
-	export CCACHE_DIR=/media/jbech/SSHD_LINUX/.ccache
+	export CCACHE_DIR=/media/jbech/TSHB_LINUX/.ccache
 
 	# Editor
 	export EDITOR=vim
@@ -23,16 +25,20 @@ if [ "$MY_COMPUTER" = "debby" ]; then
 	export LC_ALL=en_US.UTF-8
 
 	# Prompt
-	export PS1="\[\033[32m\][\u@\h\[\033[37m\] \w\[\033[32m\]] \`parse_git_branch\`\\n\[\033[37m\]\$ "
+	export PS1="\[\033[32m\]\u@\h\[\033[37m\] \w\[\033[32m\] \`parse_git_branch\`\\n\[\033[37m\]\$ "
 
 	# Term
-	export TERM=screen-256color
+	# export TERM=screen-256color
 
 	# Path
 	export PATH=$PATH:$HOME/bin:$HOME/.local/bin
 
-	# Aliases only relevelant to "debby"
-	alias sshd='cd /media/jbech/SSHD_LINUX/'
+	# Aliases only relevelant to "goby"
+	alias sshd='cd /media/jbech/TSHB_LINUX/'
+
+	# Yocto
+	export SSTATE_DIR="/media/jbech/TSHB_LINUX/yocto-caches/sstate-cache"
+	export DL_DIR="/media/jbech/TSHB_LINUX/yocto-caches/downloads"
 
 ################################################################################
 # Guppy - work
@@ -42,6 +48,7 @@ elif [ "$MY_COMPUTER" = "guppy" ]; then
 	export LAUNCH_TERMINAL="terminator -x"
 	export OPTEE_ROOT_PROJ_PATH="/home/jbech/devel/optee_projects"
 	export OPTEE_PROJ_PATH="${OPTEE_ROOT_PROJ_PATH}/qemu"
+	export LAUNCH_TERMINAL="urxvt -fn 'xft:Monospace:pixelsize=10' -bg Black -e bash -c"
 	export TA_LOAD_ADDR="0x103020"
 
 
@@ -58,7 +65,7 @@ elif [ "$MY_COMPUTER" = "guppy" ]; then
 	export LC_ALL=en_US.UTF-8
 
 	# Prompt
-	export PS1="\[\033[32m\][\u@\h\[\033[37m\] \w\[\033[32m\]] \`parse_git_branch\`\\n\[\033[37m\]\$ "
+	export PS1="\[\033[32m\]\u@\h\[\033[37m\] \w\[\033[32m\] \`parse_git_branch\`\\n\[\033[37m\]\$ "
 
 	# Term
 	export TERM=screen-256color
@@ -68,4 +75,8 @@ elif [ "$MY_COMPUTER" = "guppy" ]; then
 
 	# Aliases only relevelant to "guppy"
 	alias optee_local='ssh -X optee@192.168.1.61'
+
+	# Yocto
+	export SSTATE_DIR="/home/jbech/devel/yocto-caches/sstate-cache"
+	export DL_DIR="/home/jbech/devel/yocto-caches/downloads"
 fi
