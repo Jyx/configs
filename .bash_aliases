@@ -4,12 +4,21 @@ source $HOME/.myenv
 # Bash alias
 ################################################################################
 alias ls='ls --color=auto'
+lsd() {
+	if [ $# -eq 1 ]; then
+		ls -d */ $1 | sed -e 's/\/$//'
+	else
+		ls -d */ | sed -e 's/\/$//'
+	fi
+}
+
 alias ll='ls -al --color -h --group-directories-first'
+alias top20='du -aBM -d 1 . | sort -nr | head -20'
 
 ################################################################################
 # Server alias
 ################################################################################
-alias bonito2='TERM=xterm ssh -X jyx@jyx.mooo.com'
+alias fedora='TERM=xterm ssh -X jyx@192.168.1.100'
 alias fsdata='ssh -X jyx@jyxpi.mooo.com'
 alias hackbox='ssh -X joakim.bech@hackbox.linaro.org'
 alias mount_hackbox='sshfs joakim.bech@hackbox.linaro.org:/home/joakim.bech /home/jbech/mnt/hackbox'
@@ -32,7 +41,7 @@ AUTH_KEY=0EC497DA
 
 export GPGKEY=189693C7
 
-alias gpg='gpg2'
+#alias gpg='gpg2'
 
 # Function use to encrypt files locally for my own sake.
 # Note to use this the private keys must reside in the keyring!
@@ -46,6 +55,8 @@ function check_sign () { gpg --verify $1.sig $1; }
 # Git related alias
 ################################################################################
 alias gb='git branch -v'
+alias gd='git diff --color-moved=plain'
+alias gl='git log --color-moved=plain'
 alias gs='git status'
 alias grv='git remote -v'
 alias gh_url="git remote -v | head -1 | awk '{print $2}' | sed -e 's/https:\/\/github.com\/\(.*\)/git@github.com:\1/g'"
@@ -62,6 +73,9 @@ function gpr_origin { git fetch origin pull/$1/head && git checkout FETCH_HEAD; 
 function gpr_github_as_branch () { git fetch github pull/$1/head:github_pr_$1 && git checkout github_pr_$1; }
 function gpr_github { git fetch github pull/$1/head && git checkout FETCH_HEAD; }
 
+function gpr_jbech_as_branch () { git fetch jbech_pr_$1 && git checkout jbech_pr_$1; }
+function gpr_jbech { git fetch jbech pull/$1/head && git checkout FETCH_HEAD; }
+
 # get current branch in git repo
 function parse_git_branch() {
 	BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
@@ -73,6 +87,9 @@ function parse_git_branch() {
 		echo ""
 	fi
 }
+
+# GitHub CLI alias
+alias giv='gh issue view'
 
 # get current status of git repo
 function parse_git_dirty {
@@ -112,8 +129,9 @@ function parse_git_dirty {
 ################################################################################
 # Gerrit
 ################################################################################
-alias gerrit_oemcrypto='git push gerrit HEAD:refs/for/oemcrypto-v15-dev'
+alias gerrit_oemcrypto='git push gerrit HEAD:refs/for/oemcrypto-v15'
 alias gerrit='ssh -p 29418 joakim.bech@dev-private-review.linaro.org gerrit'
+alias gerrit_plus2='ssh -p 29418 dev-private-review.linaro.org gerrit review --code-review +2 $(git rev-list origin/oemcrypto-v15-dev..HEAD)'
 
 ################################################################################
 # Repo related alias
@@ -139,6 +157,20 @@ alias rpo_jbech='repo forall -c "git remote add jbech git@github.com:jbech-linar
 alias rpo_s='repo sync -j3 -d'
 alias rpo_gcc='./toolchains/aarch32/bin/arm-linux-gnueabihf-gcc --version | grep "GNU Toolchain" && ./toolchains/aarch64/bin/aarch64-linux-gnu-gdb --version | grep "GNU Toolchain"'
 
+################################################################################
+# Yocto
+################################################################################
+function fix_yocto_caches () {
+	if [ -f conf/local.conf ]; then
+		sed -i 's|^#SSTATE_DIR.*|SSTATE_DIR="'$SSTATE_DIR'"|g' conf/local.conf
+		sed -i 's|^#DL_DIR.*|DL_DIR="'$DL_DIR'"|g' conf/local.conf
+		grep -e "^MACHINE\|^SSTATE_DIR\|^DL_DIR" conf/local.conf
+
+	else
+		echo "Not in Yocto's build dir (conf/local.conf not found)!"
+	fi
+}
+
 alias tmux='tmux -2'
 alias byobunew='byobu new -s'
 
@@ -152,6 +184,15 @@ alias cscopeme='find `pwd` -name "*.[chsS]" > cscope.files && cscope -b -q -k'
 ################################################################################
 # To jump to a tag in vim, press: CTRL + ALT-GR and 9
 alias ctagscpp='ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .'
+
+################################################################################
+# gtags
+################################################################################
+function gtags_oemcrypto ()
+{
+	find oemcrypto_v15/ -type f > gtags.files
+	gtags
+}
 
 ################################################################################
 # Hexdump
@@ -224,11 +265,12 @@ alias dr_stoprem='docker rm -f $(docker ps -a -q)'
 ################################################################################
 export USE_CCACHE=1
 export CCACHE_UMASK=002
+alias watch_ccache="TERM=xterm watch -d -n 3 'ccache -s'"
 
 ################################################################################
 # QEMU Arm on x86
 ################################################################################
-alias qemu_arm='qemu-arm -E LD_LIBRARY_PATH=/media/jbech/SSHD_LINUX/devel/optee_projects/reference/toolchains/aarch32/arm-linux-gnueabihf/libc/lib/ /media/jbech/SSHD_LINUX/devel/optee_projects/reference/toolchains/aarch32/arm-linux-gnueabihf/libc/lib/ld-linux-armhf.so.3'
+alias qemu_arm='qemu-arm -E LD_LIBRARY_PATH=/media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32/arm-linux-gnueabihf/libc/lib/ /media/jbech/TSHB_LINUX/devel/optee_projects/reference/toolchains/aarch32/arm-linux-gnueabihf/libc/lib/ld-linux-armhf.so.3'
 
 ################################################################################
 # Various search and find
@@ -260,9 +302,6 @@ ff() {
 ################################################################################
 alias file_to_clip="xclip -sel clip <"
 alias tb="nc termbin.com 9999"
-
-transfer() { if [ $# -eq 0 ]; then echo "No arguments specified. Usage:\necho transfer /tmp/test.md\ncat /tmp/test.md | transfer test.md"; return 1; fi
-tmpfile=$( mktemp -t transferXXX ); if tty -s; then basefile=$(basename "$1" | sed -e 's/[^a-zA-Z0-9._-]/-/g'); curl --progress-bar --upload-file "$1" "https://transfer.sh/$basefile" >> $tmpfile; else curl --progress-bar --upload-file "-" "https://transfer.sh/$1" >> $tmpfile ; fi; cat $tmpfile; rm -f $tmpfile; }
 
 ################################################################################
 # i3 tweaks
