@@ -1,12 +1,14 @@
 [user]
 	name = Joakim Bech
 	email = joakim.bech@linaro.org
+	signingkey = 3CEB3C94
 [color]
 	status = auto
 	diff = auto
 	branch = auto
 [diff]
 	tool = diffuse
+	colormoved = default
 [merge]
 	tool = meld
 [alias]
@@ -26,6 +28,7 @@
 	g = grep --color
 	fixes = show --format='Fixes: %h ("%s")' -s
 	cite = log -1 --abbrev=12 --pretty=format:\"%h (\\\"%s\\\")\"
+	mr = !sh -c 'git fetch $1 merge-requests/$2/head:mr-$1-$2 && git checkout mr-$1-$2' -
 
 #[imap]
 #	folder = "[Gmail]/Drafts"
@@ -50,8 +53,10 @@
 	default = simple
 [core]
 	excludesfile = /home/jbech/.gitignore
+	pager = delta --line-numbers --dark
 [http]
 	cookiefile = /home/jbech/.gitcookies
+	postBuffer = 157286400
 [uploadpack]
 	allowTipSHA1InWant = true
 	allowReachableSHA1InWant = true
@@ -59,3 +64,5 @@
 	hiderefs = false
 [gitreview]
 	username = joakim.bech
+[delta]
+	#side-by-side = true
