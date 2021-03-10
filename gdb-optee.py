@@ -2,6 +2,7 @@ import gdb
 import os
 import subprocess
 import fnmatch
+from threading import Thread, Lock
 
 # All paths here have been verified and used with OP-TEE v3.9.0
 
@@ -10,38 +11,38 @@ TEE_ELF                  = "optee_os/out/arm/core/tee.elf"
 
 # Trusted applications
 # optee_example
-ACIPHER_TA_ELF           = "out-br/build/optee_examples-1.0/acipher/ta/out/a734eed9-d6a1-4244-aa50-7c99719e7b7b.elf"
-AES_TA_ELF               = "out-br/build/optee_examples-1.0/aes/ta/out/5dbac793-f574-4871-8ad3-04331ec17f24.elf"
-HELLO_WORLD_TA_ELF       = "out-br/build/optee_examples-1.0/hello_world/ta/out/8aaaf200-2450-11e4-abe2-0002a5d5c51b.elf"
-HOTP_TA_ELF              = "out-br/build/optee_examples-1.0/hotp/ta/out/484d4143-2d53-4841-3120-4a6f636b6542.elf"
-RANDOM_TA_ELF            = "out-br/build/optee_examples-1.0/random/ta/out/b6c53aba-9669-4668-a7f2-205629d00f86.elf"
-SECURE_STORAGE_TA_ELF    = "out-br/build/optee_examples-1.0/secure_storage/ta/out/f4e750bb-1437-4fbf-8785-8d3580c34994.elf"
+ACIPHER_TA_ELF           = "out-br/build/optee_examples_ext-1.0/acipher/ta/out/a734eed9-d6a1-4244-aa50-7c99719e7b7b.elf"
+AES_TA_ELF               = "out-br/build/optee_examples_ext-1.0/aes/ta/out/5dbac793-f574-4871-8ad3-04331ec17f24.elf"
+HELLO_WORLD_TA_ELF       = "out-br/build/optee_examples_ext-1.0/hello_world/ta/out/8aaaf200-2450-11e4-abe2-0002a5d5c51b.elf"
+HOTP_TA_ELF              = "out-br/build/optee_examples_ext-1.0/hotp/ta/out/484d4143-2d53-4841-3120-4a6f636b6542.elf"
+RANDOM_TA_ELF            = "out-br/build/optee_examples_ext-1.0/random/ta/out/b6c53aba-9669-4668-a7f2-205629d00f86.elf"
+SECURE_STORAGE_TA_ELF    = "out-br/build/optee_examples_ext-1.0/secure_storage/ta/out/f4e750bb-1437-4fbf-8785-8d3580c34994.elf"
 
 # optee_test
-AES_PERF_TA_ELF          = "out-br/build/optee_test-1.0/ta/aes_perf/out/e626662e-c0e2-485c-b8c8-09fbce6edf3d.elf"
-CONCURRENT_LARGE_TA_ELF  = "out-br/build/optee_test-1.0/ta/concurrent_large/out/5ce0c432-0ab0-40e5-a056-782ca0e6aba2.elf"
-CONCURRENT_TA_ELF        = "out-br/build/optee_test-1.0/ta/concurrent/out/e13010e0-2ae1-11e5-896a-0002a5d5c51b.elf"
-CREATE_FAIL_TEST_TA_ELF  = "out-br/build/optee_test-1.0/ta/create_fail_test/out/c3f6e2c0-3548-11e1-b86c-0800200c9a66.elf"
-CRYPT_TA_ELF             = "out-br/build/optee_test-1.0/ta/crypt/out/cb3e5ba0-adf1-11e0-998b-0002a5d5c51b.elf"
-OS_TEST_LIB_TA_ELF       = "out-br/build/optee_test-1.0/ta/os_test_lib/out/ffd2bded-ab7d-4988-95ee-e4962fff7154.elf"
-OS_TEST_TA_ELF           = "out-br/build/optee_test-1.0/ta/os_test/out/5b9e0e40-2636-11e1-ad9e-0002a5d5c51b.elf"
-RPC_TEST_TA_ELF          = "out-br/build/optee_test-1.0/ta/rpc_test/out/d17f73a0-36ef-11e1-984a-0002a5d5c51b.elf"
-SDP_BASIC_TA_ELF         = "out-br/build/optee_test-1.0/ta/sdp_basic/out/12345678-5b69-11e4-9dbb-101f74f00099.elf"
-SHA_PERF_TA_ELF          = "out-br/build/optee_test-1.0/ta/sha_perf/out/614789f2-39c0-4ebf-b235-92b32ac107ed.elf"
-SIMS_TA_ELF              = "out-br/build/optee_test-1.0/ta/sims/out/e6a33ed4-562b-463a-bb7e-ff5e15a493c8.elf"
-SOCKET_TA_ELF            = "out-br/build/optee_test-1.0/ta/socket/out/873bcd08-c2c3-11e6-a937-d0bf9c45c61c.elf"
-STORAGE2_TA_ELF          = "out-br/build/optee_test-1.0/ta/storage2/out/731e279e-aafb-4575-a771-38caa6f0cca6.elf"
-STORAGE_BENCHMARK_TA_ELF = "out-br/build/optee_test-1.0/ta/storage_benchmark/out/f157cda0-550c-11e5-a6fa-0002a5d5c51b.elf"
-STORAGE_TA_ELF           = "out-br/build/optee_test-1.0/ta/storage/out/b689f2a7-8adf-477a-9f99-32e90c0ad0a2.elf"
+AES_PERF_TA_ELF          = "out-br/build/optee_test_ext-1.0/ta/aes_perf/out/e626662e-c0e2-485c-b8c8-09fbce6edf3d.elf"
+CONCURRENT_LARGE_TA_ELF  = "out-br/build/optee_test_ext-1.0/ta/concurrent_large/out/5ce0c432-0ab0-40e5-a056-782ca0e6aba2.elf"
+CONCURRENT_TA_ELF        = "out-br/build/optee_test_ext-1.0/ta/concurrent/out/e13010e0-2ae1-11e5-896a-0002a5d5c51b.elf"
+CREATE_FAIL_TEST_TA_ELF  = "out-br/build/optee_test_ext-1.0/ta/create_fail_test/out/c3f6e2c0-3548-11e1-b86c-0800200c9a66.elf"
+CRYPT_TA_ELF             = "out-br/build/optee_test_ext-1.0/ta/crypt/out/cb3e5ba0-adf1-11e0-998b-0002a5d5c51b.elf"
+OS_TEST_LIB_TA_ELF       = "out-br/build/optee_test_ext-1.0/ta/os_test_lib/out/ffd2bded-ab7d-4988-95ee-e4962fff7154.elf"
+OS_TEST_TA_ELF           = "out-br/build/optee_test_ext-1.0/ta/os_test/out/5b9e0e40-2636-11e1-ad9e-0002a5d5c51b.elf"
+RPC_TEST_TA_ELF          = "out-br/build/optee_test_ext-1.0/ta/rpc_test/out/d17f73a0-36ef-11e1-984a-0002a5d5c51b.elf"
+SDP_BASIC_TA_ELF         = "out-br/build/optee_test_ext-1.0/ta/sdp_basic/out/12345678-5b69-11e4-9dbb-101f74f00099.elf"
+SHA_PERF_TA_ELF          = "out-br/build/optee_test_ext-1.0/ta/sha_perf/out/614789f2-39c0-4ebf-b235-92b32ac107ed.elf"
+SIMS_TA_ELF              = "out-br/build/optee_test_ext-1.0/ta/sims/out/e6a33ed4-562b-463a-bb7e-ff5e15a493c8.elf"
+SOCKET_TA_ELF            = "out-br/build/optee_test_ext-1.0/ta/socket/out/873bcd08-c2c3-11e6-a937-d0bf9c45c61c.elf"
+STORAGE2_TA_ELF          = "out-br/build/optee_test_ext-1.0/ta/storage2/out/731e279e-aafb-4575-a771-38caa6f0cca6.elf"
+STORAGE_BENCHMARK_TA_ELF = "out-br/build/optee_test_ext-1.0/ta/storage_benchmark/out/f157cda0-550c-11e5-a6fa-0002a5d5c51b.elf"
+STORAGE_TA_ELF           = "out-br/build/optee_test_ext-1.0/ta/storage/out/b689f2a7-8adf-477a-9f99-32e90c0ad0a2.elf"
 
 # Host applications
-ACIPHER_HOST_ELF         = "out-br/build/optee_examples-1.0/acipher/acipher"
-AES_HOST_ELF             = "out-br/build/optee_examples-1.0/aes/aes"
-HELLO_WORLD_HOST_ELF     = "out-br/build/optee_examples-1.0/hello_world/hello_world"
-HOTP_HOST_ELF            = "out-br/build/optee_examples-1.0/hotp/hotp"
-RANDOM_HOST_ELF          = "out-br/build/optee_examples-1.0/random/random"
-SECURE_STORAGE_HOST_ELF  = "out-br/build/optee_examples-1.0/secure_storage/secure_storage"
-XTEST_HOST_ELF           = "out-br/build/optee_test-1.0/host/xtest/xtest"
+ACIPHER_HOST_ELF         = "out-br/build/optee_examples_ext-1.0/acipher/acipher"
+AES_HOST_ELF             = "out-br/build/optee_examples_ext-1.0/aes/aes"
+HELLO_WORLD_HOST_ELF     = "out-br/build/optee_examples_ext-1.0/hello_world/hello_world"
+HOTP_HOST_ELF            = "out-br/build/optee_examples_ext-1.0/hotp/hotp"
+RANDOM_HOST_ELF          = "out-br/build/optee_examples_ext-1.0/random/random"
+SECURE_STORAGE_HOST_ELF  = "out-br/build/optee_examples_ext-1.0/secure_storage/secure_storage"
+XTEST_HOST_ELF           = "out-br/build/optee_test_ext-1.0/host/xtest/xtest"
 
 # TF-A binaries
 BL1_ELF                  = "trusted-firmware-a/build/qemu/debug/bl1/bl1.elf"
@@ -174,56 +175,64 @@ def auto_load_ta():
     gdb.execute("tb TA_InvokeCommandEntryPoint")
     gdb.post_event(Executor("continue"))
 
+mutex = Lock()
 
 def auto_load_ldelf():
     """ Loads ldelf when the helper breakpoint in TEE core is hit. """
     global OPTEE_PROJ_PATH
     global ta_loaded_symbols
     global ldelf_loaded_symbols
+    global mutex
 
-    # Clear out old TA's that has previously been auto-loaded.
-    if "elf" in ta_loaded_symbols:
-        gdb.execute("remove-symbol-file {}".format(ta_loaded_symbols["elf"]))
-        ta_loaded_symbols.clear()
+    mutex.acquire()
 
-    if "ldelf.elf" in ldelf_loaded_symbols:
-        gdb.post_event(Executor("continue"))
-        return
+    try:
+        # Clear out old TA's that has previously been auto-loaded.
+        if "elf" in ta_loaded_symbols:
+            gdb.execute("remove-symbol-file {}".format(ta_loaded_symbols["elf"]))
+            ta_loaded_symbols.clear()
 
-    print("Loading LDELF symbols for OP-TEE")
-    if "ldelf.elf" not in ldelf_loaded_symbols:
-        ldelf = find_file("ldelf.elf", OPTEE_PROJ_PATH + "/optee_os")
-        if ldelf is None or len(ldelf) != 1:
-            print("Couldn't find ldelf.elf (or found too many)!")
+        if "ldelf.elf" in ldelf_loaded_symbols:
+            gdb.post_event(Executor("continue"))
             return
-        # We want it as a string and not as an array.
-        ldelf_loaded_symbols["ldelf.elf"] = ldelf[0]
 
-    print(ldelf_loaded_symbols["ldelf.elf"])
+        print("Loading LDELF symbols for OP-TEE")
+        if "ldelf.elf" not in ldelf_loaded_symbols:
+            ldelf = find_file("ldelf.elf", OPTEE_PROJ_PATH + "/optee_os")
+            if ldelf is None or len(ldelf) != 1:
+                print("Couldn't find ldelf.elf (or found too many)!")
+                return
+            # We want it as a string and not as an array.
+            ldelf_loaded_symbols["ldelf.elf"] = ldelf[0]
 
-    ldelf_addr = gdb.parse_and_eval("ldelf_addr")
-    print("LDELF load address: {}".format(ldelf_addr))
+        print(ldelf_loaded_symbols["ldelf.elf"])
 
-    segments = read_segments(ldelf_loaded_symbols["ldelf.elf"])
-    ldelf_addr = int(ldelf_addr)
+        ldelf_addr = gdb.parse_and_eval("ldelf_addr")
+        print("LDELF load address: {}".format(ldelf_addr))
 
-    ldelf_loaded_symbols[".text"] = hex(ldelf_addr
-                                        + int(segments['.text'], 16))
-    ldelf_loaded_symbols[".rodata"] = hex(ldelf_addr
-                                          + int(segments['.rodata'], 16))
-    ldelf_loaded_symbols[".data"] = hex(ldelf_addr
-                                        + int(segments['.data'], 16))
-    ldelf_loaded_symbols[".bss"] = hex(ldelf_addr
-                                       + int(segments['.bss'], 16))
+        segments = read_segments(ldelf_loaded_symbols["ldelf.elf"])
+        ldelf_addr = int(ldelf_addr)
 
-    # Segments retrieved are explicitly loaded
-    gdb.execute("add-symbol-file {} {} -s .rodata {} -s .data {} -s .bss {}"
-                .format(ldelf_loaded_symbols["ldelf.elf"],
-                        ldelf_loaded_symbols[".text"],
-                        ldelf_loaded_symbols[".rodata"],
-                        ldelf_loaded_symbols[".data"],
-                        ldelf_loaded_symbols[".bss"]))
-    gdb.execute("b gdb_ldelf_helper")
+        ldelf_loaded_symbols[".text"] = hex(ldelf_addr
+                                            + int(segments['.text'], 16))
+        ldelf_loaded_symbols[".rodata"] = hex(ldelf_addr
+                                              + int(segments['.rodata'], 16))
+        ldelf_loaded_symbols[".data"] = hex(ldelf_addr
+                                            + int(segments['.data'], 16))
+        ldelf_loaded_symbols[".bss"] = hex(ldelf_addr
+                                           + int(segments['.bss'], 16))
+
+        # Segments retrieved are explicitly loaded
+        gdb.execute("add-symbol-file {} {} -s .rodata {} -s .data {} -s .bss {}"
+                    .format(ldelf_loaded_symbols["ldelf.elf"],
+                            ldelf_loaded_symbols[".text"],
+                            ldelf_loaded_symbols[".rodata"],
+                            ldelf_loaded_symbols[".data"],
+                            ldelf_loaded_symbols[".bss"]))
+        gdb.execute("b gdb_ldelf_helper")
+    finally:
+        mutex.release()
+
     gdb.post_event(Executor("continue"))
 
 
@@ -257,8 +266,10 @@ def stop_handler(event):
     if isinstance(event, gdb.BreakpointEvent):
         try:
             if event.breakpoint.location == "gdb_helper":
+                print("Calling auto_load_ldelf")
                 auto_load_ldelf()
             elif event.breakpoint.location == "gdb_ldelf_helper":
+                print("Calling auto_load_ta")
                 auto_load_ta()
             else:
                 pass
