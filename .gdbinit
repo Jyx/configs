@@ -1,7 +1,7 @@
 #set auto-load safe-path $HOME/
 #add-auto-load-safe-path /home/jbech/tutorial/.gdbinit
 
-set $PROJ_PATH="/media/jbech/SSHD_LINUX/devel/optee_projects/qemu"
+set $PROJ_PATH="/media/jbech/TSHB_LINUX/devel/optee_projects/qemu"
 
 set print pretty on
 set output-radix 0x10
@@ -15,13 +15,15 @@ set history save
 source /home/jbech/configs/.gdb-dashboard
 dashboard history -style limit 2
 dashboard stack -style limit 2
+dashboard registers -style list 'r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 sp lr pc cpsr'
+dashboard source -style height 30
 
 define db
   dashboard
 end
 
 source /home/jbech/configs/gdb-optee.py
-source /home/jbech/configs/hexdump.py
+#source /home/jbech/configs/hexdump.py
 
 ################################################################################
 # OP-TEE plugin
