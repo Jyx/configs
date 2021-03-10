@@ -25,6 +25,10 @@ set ts=8
 set noshowmatch
 let g:loaded_matchparen = 1
 
+if has('nvim')
+  set runtimepath+=/usr/share/vim/vimfiles
+endif
+
 " For swp-files
 set dir=~/tmp//
 
@@ -44,7 +48,7 @@ Plugin 'vim-airline/vim-airline'
 Plugin 'kien/ctrlp.vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'tpope/vim-fugitive'
-"Plugin 'Valloric/YouCompleteMe'
+Plugin 'mboughaba/i3config.vim'
 call vundle#end()            " required
 filetype plugin indent on    " required
 
@@ -83,6 +87,7 @@ let g:ctrlp_by_filename = 1
 "autocmd BufEnter * :syntax sync fromstart
 set redrawtime=10000
 syntax sync minlines=20
+"au FocusGained * :redraw!
 
 " Spot extra whitespace
 au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match Error /\s\+$/
